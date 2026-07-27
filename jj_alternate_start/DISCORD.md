@@ -10,3 +10,7 @@ Why start in Pallet Town every single time? Begin your journey in any of the ele
 Only affects new games started while the mod is on.
 
 `jj_alternate_start` v1.0.3
+
+
+## Download
+:link: https://github.com/johnjohto/pokemon-mods/tree/main/jj_alternate_start

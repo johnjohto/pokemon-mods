@@ -12,5 +12,6 @@ Every normal rule still applies: you need the move (or **HM Field Unlock**), the
 
 `jj_auto_field_moves` v1.1.1
 
+
 ## Download
-https://github.com/johnjohto/pokemon-mods/tree/main/jj_repel_prompt
+:link: https://github.com/johnjohto/pokemon-mods/tree/main/jj_auto_field_moves

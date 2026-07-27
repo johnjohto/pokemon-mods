@@ -13,4 +13,4 @@ Pairs beautifully with **Auto Field Moves** for a fully menu-free overworld.
 
 
 ## Download
-https://github.com/johnjohto/pokemon-mods/tree/main/jj_hm_field_unlock
+:link: https://github.com/johnjohto/pokemon-mods/tree/main/jj_hm_field_unlock
