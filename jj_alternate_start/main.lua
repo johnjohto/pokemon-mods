@@ -70,10 +70,14 @@ return function(mod)
     return steps
   end)
 
+  local grantedFor -- last speech the starter was granted to
+  local pendingWarp -- deferred until the speech is off the stack
+
   mod.events:on("intro.oak_speech.finished", function(ev)
     local answers = ev.answers or {}
     local townId = answers.jj_start_town
     if not townId or townId == "PALLET_TOWN" then return end -- classic start
+    if grantedFor == ev.speech then return end -- a re-fired finish is not a new game
 
     local starter = answers.jj_starter or "BULBASAUR"
     local game = ev.speech.game
@@ -108,9 +112,21 @@ return function(mod)
       mod.log:warn("no fly warp for %s; staying in Pallet", townId)
       return
     end
+    grantedFor = ev.speech
     save.lastHeal = { map = townId, x = fw.x, y = fw.y }
     save.lastOutdoor = { id = townId, x = fw.x, y = fw.y }
-    game.overworld:startWarpTo(townId, fw.x, fw.y, "down")
+    -- do NOT warp here: the speech pops itself right after this event, so
+    -- anything pushed now is popped in its place and the speech stays
+    -- alive, re-firing "finished" every frame. Wait for the pop.
+    pendingWarp = { speech = ev.speech, townId = townId, fw = fw }
     mod.log:info("alternate start: %s with %s", townId, starter)
+  end)
+
+  mod.events:on("screen.popped", function(e)
+    local w = pendingWarp
+    if not w or e.state ~= w.speech then return end
+    pendingWarp = nil
+    local game = w.speech.game
+    game.overworld:startWarpTo(w.townId, w.fw.x, w.fw.y, "down")
   end)
 end

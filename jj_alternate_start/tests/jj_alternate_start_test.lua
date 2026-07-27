@@ -92,10 +92,11 @@ list.onCancel()
 T.eq(speech.answers.jj_start_town, "PALLET_TOWN", "B answers the classic start")
 T.check(advanced, "B still advances the speech")
 
--- ------- finished: starter, flags, heal point, warp
+-- ------- finished: starter, flags, heal point; the warp waits for the pop
 
+local speechState = { game = game }
 Runtime.emit("intro.oak_speech.finished", {
-  speech = { game = game },
+  speech = speechState,
   answers = { jj_start_town = "PEWTER_CITY", jj_starter = "CHARMANDER" },
 })
 local save = game.save
@@ -115,10 +116,27 @@ local fw = Data.field.flyWarps.PEWTER_CITY
 T.eq(save.lastHeal.map, "PEWTER_CITY", "blackouts return to the new town")
 T.eq(save.lastHeal.x, fw.x, "the heal point is the fly landing")
 T.eq(save.lastOutdoor.id, "PEWTER_CITY", "the outdoor palette follows")
+T.eq(game.warpedTo, nil, "no warp while the speech is still on the stack")
+
+-- a re-fired finished (the engine's shrink timeline can repeat it when a
+-- listener leaves the speech on the stack) is not a second grant
+Runtime.emit("intro.oak_speech.finished", {
+  speech = speechState,
+  answers = { jj_start_town = "PEWTER_CITY", jj_starter = "CHARMANDER" },
+})
+T.eq(#save.party, 1, "a repeated finished grants nothing twice")
+
+-- only the speech's own pop triggers the warp, and only once
+Runtime.emit("screen.popped", { state = { someOtherScreen = true } })
+T.eq(game.warpedTo, nil, "an unrelated pop does not warp")
+Runtime.emit("screen.popped", { state = speechState })
 T.check(game.warpedTo and game.warpedTo.map == "PEWTER_CITY"
   and game.warpedTo.x == fw.x and game.warpedTo.y == fw.y
   and game.warpedTo.facing == "down",
-  "the player warps to the town's Pokémon Center")
+  "popping the speech warps to the town's Pokémon Center")
+local warp = game.warpedTo
+Runtime.emit("screen.popped", { state = speechState })
+T.eq(game.warpedTo, warp, "the warp fires once")
 
 -- ------- the classic start is a complete no-op
 
