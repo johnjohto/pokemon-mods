@@ -1,0 +1,9 @@
+{
+  "id": "jj_alternate_start",
+  "name": "Alternate Start",
+  "version": "1.0.0",
+  "entry": "main.lua",
+  "category": "MECHANIC",
+  "permissions": ["engine_internals"],
+  "description": "Begin a new game in any town or city with a starter, skipping the Pallet Town tutorial."
+}
