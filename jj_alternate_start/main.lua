@@ -32,18 +32,44 @@ return function(mod)
   }
   local STARTERS = { "BULBASAUR", "CHARMANDER", "SQUIRTLE" }
 
+  local game
+  mod.events:on("game.ready", function(e) game = e.game end)
+
+  -- the starter plus the tutorial flags that say it was handed over:
+  -- lab escort, parcel chain, pokédex.  Shared by the quick start (story
+  -- beats off) and the visit scene's ball pick (story beats on)
+  local function grantStarter(g, species)
+    local save = g.save
+    local Pokemon = require("src.pokemon.Pokemon")
+    local mon = Pokemon.new(g.data, species, 5)
+    require("src.battle.BattleState").stampOT(save, mon)
+    require("src.pokemon.Party").add(save.party, mon)
+    save.pokedex.seen[species] = true
+    save.pokedex.owned[species] = true
+    local flags = save.flags
+    flags.EVENT_GOT_STARTER = true
+    flags["EVENT_CHOSE_" .. species] = true
+    flags.EVENT_GOT_POKEDEX = true
+    flags.EVENT_GOT_OAKS_PARCEL = true
+    flags.EVENT_OAK_GOT_PARCEL = true
+  end
+
   mod.hooks:wrap("intro.oak_speech.build", function(nextFn, steps, speech)
     steps = nextFn(steps, speech)
 
-    mod.ui.insertStepBefore(steps, "shrink", {
-      id = "jj_starter",
-      kind = "choice",
-      text = "Before you go...\nwhich POKéMON will\nyou take with you?",
-      choices = STARTERS,
-      values = STARTERS,
-      saveKey = "jj_starter",
-      tx = 2, ty = 0, tw = 15,
-    })
+    -- with story beats the starter is picked from Oak's balls in the
+    -- visit scene, so the speech only asks where to go
+    if mod.options:get("storyBeats") == false then
+      mod.ui.insertStepBefore(steps, "shrink", {
+        id = "jj_starter",
+        kind = "choice",
+        text = "Before you go...\nwhich POKéMON will\nyou take with you?",
+        choices = STARTERS,
+        values = STARTERS,
+        saveKey = "jj_starter",
+        tx = 2, ty = 0, tw = 15,
+      })
+    end
 
     -- the town list is eleven rows, too tall for the choice kind's fixed
     -- box, so a fn step drives a scrolling ListMenu instead
@@ -82,41 +108,25 @@ return function(mod)
     if not townId or townId == "PALLET_TOWN" then return end -- classic start
     if grantedFor == ev.speech then return end -- a re-fired finish is not a new game
 
-    local starter = answers.jj_starter or "BULBASAUR"
-    local game = ev.speech.game
-    local save = game.save
-
-    -- the starter, straight into the party (dev-console grant pattern)
-    local Pokemon = require("src.pokemon.Pokemon")
-    local mon = Pokemon.new(game.data, starter, 5)
-    require("src.battle.BattleState").stampOT(save, mon)
-    require("src.pokemon.Party").add(save.party, mon)
-    save.pokedex.seen[starter] = true
-    save.pokedex.owned[starter] = true
-
-    -- tutorial quests read as done: lab escort, parcel chain, pokédex
-    -- handed over, old man awake and off the Viridian north path
+    local g = ev.speech.game
+    local save = g.save
     local flags = save.flags
-    flags.EVENT_GOT_STARTER = true
-    flags["EVENT_CHOSE_" .. starter] = true
-    flags.EVENT_GOT_POKEDEX = true
-    flags.EVENT_GOT_OAKS_PARCEL = true
-    flags.EVENT_OAK_GOT_PARCEL = true
-    flags.EVENT_BATTLED_RIVAL_IN_OAKS_LAB = true
+
+    -- town infrastructure every alternate start needs, story or not:
+    -- old man awake and off the Viridian north path...
     save.objectToggles = save.objectToggles or {}
     save.objectToggles.VIRIDIAN_CITY = {
       VIRIDIANCITY_OLD_MAN_SLEEPY = false,
       VIRIDIANCITY_OLD_MAN = true,
     }
-    -- a Saffron start would otherwise be a hard softlock: all four gate
-    -- guards block BOTH directions without a drink and the city sells
-    -- none.  The guards read as already served for this save only.
+    -- ...and a Saffron start needs the thirsty guards already served,
+    -- since all four gates block BOTH directions and the city sells none
     if townId == "SAFFRON_CITY" then
       flags.EVENT_GAVE_GUARDS_DRINK = true
     end
 
     -- blackouts and escape ropes return to this town's Pokémon Center
-    local fw = (game.data.field.flyWarps or {})[townId]
+    local fw = (g.data.field.flyWarps or {})[townId]
     if not fw then
       mod.log:warn("no fly warp for %s; staying in Pallet", townId)
       return
@@ -128,11 +138,19 @@ return function(mod)
     -- visit scene, badge-gated rivals) key off this marker so vanilla
     -- and classic-start saves are untouched
     mod.save:set("startedInTown", townId)
+
+    if mod.options:get("storyBeats") == false then
+      -- quick start: starter and tutorial flags right now, no scene
+      grantStarter(g, answers.jj_starter or "BULBASAUR")
+      flags.EVENT_BATTLED_RIVAL_IN_OAKS_LAB = true
+    end
+    -- with story beats the visit scene handles the starter and flags
+
     -- do NOT warp here: the speech pops itself right after this event, so
     -- anything pushed now is popped in its place and the speech stays
     -- alive, re-firing "finished" every frame. Wait for the pop.
     pendingWarp = { speech = ev.speech, townId = townId, fw = fw }
-    mod.log:info("alternate start: %s with %s", townId, starter)
+    mod.log:info("alternate start: %s", townId)
   end)
 
   mod.events:on("screen.popped", function(e)
@@ -279,4 +297,121 @@ return function(mod)
     mod.content.map_scripts:register(mapId, contribution)
   end
   mod.exports.rivalGates = gates
+
+  -- ------------------------------------------------------------------
+  -- The visit scene (story beats): Oak and Blue meet you at your new
+  -- town's Pokémon Center.  Oak offers the three balls (the pick that
+  -- the quick start makes in the speech), Blue takes the counter-pick
+  -- and fights you, Oak hands over the dex explanation, they leave.
+  -- Stages in save.modData: nil -> spawned -> granted -> done, so a
+  -- blackout mid-scene can never restart it or orphan the NPCs.
+  -- ------------------------------------------------------------------
+
+  local sceneNpcs = {} -- townId -> { npcId, npcId }
+
+  local function npcIndex(npcId)
+    return tonumber(npcId:match("_(%d+)$"))
+  end
+
+  local function removeSceneNpcs(townId)
+    for _, id in ipairs(sceneNpcs[townId] or {}) do
+      mod.world:removeNpc(id)
+    end
+    sceneNpcs[townId] = nil
+  end
+
+  local function pickStarter(g, townId, fw, oakIdx, blueIdx, species)
+    grantStarter(g, species)
+    mod.save:set("introScene", "granted") -- blackout-safe from here
+    local name = g.data.pokemon[species].name
+    Music.play(g.data, "Music_MeetRival")
+    mod.world:queueScript({
+      { "show_text", ("BLUE: I'll take this\none, gramps!\fYou got %s?\nWhatever. Mine is\nstronger anyway.\fLet's go, RED.\nRight here, right now!"):format(name) },
+      { "rival_battle", "OPP_RIVAL1", 1 },
+      { "jump_if_false", 6 },
+      { "show_text", "BLUE: What?!\nUnbelievable!\fI picked the wrong\nPOKéMON!" },
+      { "show_text", "OAK: Well done, RED!\fThis POKéDEX is\nyours now. It\nrecords every POKéMON\nyou see and catch.\fBLUE, do try to be\na little nicer." },
+      { "set_flag", "EVENT_BATTLED_RIVAL_IN_OAKS_LAB" },
+    }, { onDone = function()
+      -- the walk-off; on a blackout the map rebuilds mid-script and this
+      -- never runs, which is what the "granted" cleanup on map.entered
+      -- is for
+      mod.world:queueScript({
+        { "walk_npc", oakIdx,
+          { "down", "down", "down", "down", "down" } },
+        { "walk_npc", blueIdx,
+          { "down", "down", "down", "down", "down" } },
+      }, { onDone = function()
+        removeSceneNpcs(townId)
+        mod.save:set("introScene", "done")
+      end })
+    end })
+  end
+
+  local function startVisitScene(g, townId, fw)
+    local oakId = mod.world:spawnNpc(townId, {
+      name = "JJ_OAK", movement = "STAY", range = "UP",
+      sprite = "SPRITE_OAK", x = fw.x - 1, y = fw.y + 3,
+    })
+    local blueId = mod.world:spawnNpc(townId, {
+      name = "JJ_BLUE", movement = "STAY", range = "UP",
+      sprite = "SPRITE_BLUE", x = fw.x + 1, y = fw.y + 3,
+    })
+    if not (oakId and blueId) then
+      -- no live overworld to host the scene: never leave a save
+      -- starterless over it
+      mod.log:warn("visit scene could not spawn; granting starter silently")
+      grantStarter(g, "BULBASAUR")
+      g.save.flags.EVENT_BATTLED_RIVAL_IN_OAKS_LAB = true
+      mod.save:set("introScene", "done")
+      return
+    end
+    sceneNpcs[townId] = { oakId, blueId }
+    local oakIdx, blueIdx = npcIndex(oakId), npcIndex(blueId)
+    local ok, err = mod.world:queueScript({
+      { "move_npc_to", oakIdx, fw.x - 1, fw.y + 2 },
+      { "move_npc_to", blueIdx, fw.x + 1, fw.y + 2 },
+      { "face_object", oakIdx, "up" },
+      { "face_object", blueIdx, "up" },
+      { "show_text", "OAK: RED! There you\nare.\fI heard you were\nstarting your journey\nfrom here, so BLUE\nand I came to see\nyou off." },
+      { "show_text", "OAK: Now, choose your\nvery first POKéMON!" },
+    }, { onDone = function()
+      local Menu = require("src.ui.Menu")
+      local items = {}
+      for i, species in ipairs(STARTERS) do
+        items[i] = { label = g.data.pokemon[species].name, onSelect = function()
+          pickStarter(g, townId, fw, oakIdx, blueIdx, species)
+        end }
+      end
+      g.stack:push(Menu.new(g, items, { tx = 2, ty = 0, tw = 15 }))
+    end })
+    if not ok then
+      mod.log:warn("visit scene script refused: %s", tostring(err))
+      -- nothing ran yet; drop the NPCs so the next map.entered retries
+      -- cleanly instead of duplicating them
+      removeSceneNpcs(townId)
+    end
+  end
+
+  mod.events:on("map.entered", function(e)
+    if not storyActive() then return end
+    local townId = mod.save:get("startedInTown")
+    if not townId or e.mapId ~= townId then return end
+    local stage = mod.save:get("introScene")
+    if stage == nil then
+      if not game then return end
+      local fw = (game.data.field.flyWarps or {})[townId]
+      if fw then startVisitScene(game, townId, fw) end
+    elseif stage == "granted" then
+      -- the duel ended in a blackout before the walk-off
+      removeSceneNpcs(townId)
+      mod.save:set("introScene", "done")
+    end
+  end)
+
+  mod.exports.visitScene = {
+    start = startVisitScene,
+    pick = pickStarter,
+    cleanup = removeSceneNpcs,
+  }
 end

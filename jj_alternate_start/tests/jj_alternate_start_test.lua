@@ -26,14 +26,24 @@ local vanillaSteps = {
 }
 local steps = Runtime.call("intro.oak_speech.build",
   function(s) return s end, vanillaSteps, {})
-T.eq(#steps, 4, "the hook adds two steps")
+-- story beats on (the default): the starter is picked in the visit
+-- scene, so the speech only gains the town picker
+T.eq(#steps, 3, "story beats on: the hook adds only the town step")
+T.eq(steps[2].id, "jj_start_town", "the town picker follows the welcome")
+T.eq(steps[3].id, "shrink", "it lands before the finale")
+T.eq(steps[2].kind, "fn", "the town step drives its own scrolling list")
+
+-- story beats off: the speech also asks for the starter (v1 flow)
+run.loader.modOptions.jj_alternate_start = { storyBeats = false }
+steps = Runtime.call("intro.oak_speech.build",
+  function(s) return s end, { { id = "oak_welcome", kind = "say" },
+                              { id = "shrink", kind = "shrink" } }, {})
+run.loader.modOptions.jj_alternate_start = nil
+T.eq(#steps, 4, "story beats off: the hook adds two steps")
 T.eq(steps[2].id, "jj_starter", "the starter choice comes first")
 T.eq(steps[3].id, "jj_start_town", "the town picker comes second")
-T.eq(steps[4].id, "shrink", "both land before the finale")
 T.eq(steps[2].kind, "choice", "the starter step is a plain choice")
-T.eq(steps[2].saveKey, "jj_starter", "the starter answer has a save key")
 T.eq(#steps[2].choices, 3, "three starters on offer")
-T.eq(steps[3].kind, "fn", "the town step drives its own scrolling list")
 
 -- ------- the town step pushes a scrolling list and records the answer
 
@@ -63,7 +73,7 @@ local speech = {
     self.answers[step.saveKey] = value
   end,
 }
-local townStep = steps[3]
+local townStep = steps[3] -- the story-off build's town picker
 local advanced = false
 townStep.run(speech, function() advanced = true end)
 local list = game.stack:top()
@@ -97,8 +107,10 @@ list.onCancel()
 T.eq(speech.answers.jj_start_town, "PALLET_TOWN", "B answers the classic start")
 T.check(advanced, "B still advances the speech")
 
--- ------- finished: starter, flags, heal point; the warp waits for the pop
+-- ------- finished (quick start): starter, flags, heal point; the warp
+-- waits for the pop
 
+run.loader.modOptions.jj_alternate_start = { storyBeats = false }
 local speechState = { game = game }
 Runtime.emit("intro.oak_speech.finished", {
   speech = speechState,
@@ -142,6 +154,22 @@ T.check(game.warpedTo and game.warpedTo.map == "PEWTER_CITY"
 local warp = game.warpedTo
 Runtime.emit("screen.popped", { state = speechState })
 T.eq(game.warpedTo, warp, "the warp fires once")
+run.loader.modOptions.jj_alternate_start = nil
+
+-- ------- finished (story beats on): no silent grant; the scene does it
+
+game = newGameDouble()
+Runtime.emit("game.ready", { game = game })
+Runtime.emit("intro.oak_speech.finished", {
+  speech = { game = game },
+  answers = { jj_start_town = "PEWTER_CITY" },
+})
+T.eq(#game.save.party, 0, "story beats: no starter before the scene")
+T.eq(game.save.flags.EVENT_GOT_POKEDEX, nil,
+  "story beats: no dex before the scene")
+T.eq(game.save.lastHeal.map, "PEWTER_CITY", "the heal point still moves")
+T.eq(run.loader.modSave.jj_alternate_start.startedInTown, "PEWTER_CITY",
+  "the alternate-start marker is set for the scene")
 
 -- ------- the classic start is a complete no-op
 
@@ -286,5 +314,124 @@ T.eq(gates.CERULEAN_CITY.onStep(g, ow, 20, 6), false,
   "STORY BEATS off disables the gating")
 run.loader.modOptions.jj_alternate_start = nil
 
+-- ------- the visit scene (story beats on)
+
+local OW = require("src.world.OverworldController")
+local MapLoader = require("src.world.MapLoader")
+local CoreGame = require("src.core.Game")
+
+-- the same upvalue rewire the world suites use: OverworldState's methods
+-- close over a module-local Game that only a real boot assigns
+local function bindGame(fn, g)
+  for i = 1, 20 do
+    local name = debug.getupvalue(fn, i)
+    if name == nil then return false end
+    if name == "Game" then debug.setupvalue(fn, i, g) return true end
+  end
+  return false
+end
+
+local function sceneWorld(townId)
+  local g = newGameDouble()
+  local map = MapLoader.load(Data, townId)
+  local owState = setmetatable({
+    isOverworld = true,
+    map = map,
+    npcs = {}, entities = {}, npcPool = {}, neighbors = {},
+    player = { cellX = 13, cellY = 26, facing = "down" },
+  }, { __index = OW })
+  owState.runner = {
+    isRunning = function() return false end,
+    run = function(self, rows, extra)
+      self.runs = self.runs or {}
+      self.runs[#self.runs + 1] = rows
+      if extra and extra.onDone and not self.skipDone then extra.onDone() end
+    end,
+  }
+  CoreGame.data, CoreGame.save, CoreGame.stack = Data, g.save,
+    { states = { owState } }
+  bindGame(OW.addRuntimeObject, CoreGame)
+  bindGame(OW.removeRuntimeObject, CoreGame)
+  Runtime.emit("game.ready", { game = g })
+  local modSave = run.loader.modSave.jj_alternate_start
+  modSave.startedInTown = townId
+  modSave.introScene = nil
+  return g, owState
+end
+
+local function runtimeObjects(townId)
+  local out = {}
+  for _, obj in ipairs(Data.maps[townId].objects or {}) do
+    if obj.runtime then out[#out + 1] = obj end
+  end
+  return out
+end
+
+-- the full flow: spawn, phase A, ball pick, duel rows, walk-off, cleanup
+local game, owState = sceneWorld("PEWTER_CITY")
+Runtime.emit("map.entered", { mapId = "PEWTER_CITY" })
+T.eq(#runtimeObjects("PEWTER_CITY"), 2, "Oak and Blue spawn for the scene")
+T.check(owState.runner.runs and owState.runner.runs[1]
+  and owState.runner.runs[1][1][1] == "move_npc_to",
+  "phase A walks them up to the player")
+local menu = game.stack:top()
+T.check(menu and #menu.items == 3, "Oak offers the three balls")
+menu.items[2].onSelect() -- CHARMANDER
+T.eq(game.save.party[1].species, "CHARMANDER", "the picked ball joins")
+T.check(game.save.flags.EVENT_GOT_STARTER
+  and game.save.flags.EVENT_CHOSE_CHARMANDER
+  and game.save.flags.EVENT_GOT_POKEDEX,
+  "the pick sets the tutorial flags")
+T.eq(run.loader.modSave.jj_alternate_start.introScene, "done",
+  "the scene runs to completion")
+local rows = owState.runner.runs and owState.runner.runs[2]
+T.check(rows and rows[2] and rows[2][1] == "rival_battle"
+  and rows[2][2] == "OPP_RIVAL1" and rows[2][3] == 1,
+  "Blue fights with the lab-duel team")
+T.check(rows and rows[6] and rows[6][1] == "set_flag"
+  and rows[6][2] == "EVENT_BATTLED_RIVAL_IN_OAKS_LAB",
+  "the duel is recorded for Oak's later dialogue")
+T.eq(#runtimeObjects("PEWTER_CITY"), 0, "the walk-off removes both NPCs")
+Runtime.emit("map.entered", { mapId = "PEWTER_CITY" })
+T.eq(#runtimeObjects("PEWTER_CITY"), 0, "the scene never repeats")
+
+-- a blackout mid-duel: stage "granted" cleans up instead of restarting
+game, owState = sceneWorld("PEWTER_CITY")
+Runtime.emit("map.entered", { mapId = "PEWTER_CITY" })
+menu = game.stack:top()
+owState.runner.skipDone = true -- the map rebuild kills the script
+menu.items[3].onSelect() -- SQUIRTLE
+T.eq(run.loader.modSave.jj_alternate_start.introScene, "granted",
+  "a blackout leaves the scene at the granted stage")
+T.check(#runtimeObjects("PEWTER_CITY") == 2, "the NPCs outlive the blackout")
+owState.runner.skipDone = false
+Runtime.emit("map.entered", { mapId = "PEWTER_CITY" })
+T.eq(#runtimeObjects("PEWTER_CITY"), 0, "the return trip cleans them up")
+T.eq(run.loader.modSave.jj_alternate_start.introScene, "done",
+  "and the scene is closed out")
+T.eq(game.save.party[1].species, "SQUIRTLE", "the starter survives")
+
+-- with no live overworld the scene degrades to the silent grant
+game = newGameDouble()
+CoreGame.stack = { states = {} }
+CoreGame.overworld = nil
+Runtime.emit("game.ready", { game = game })
+run.loader.modSave.jj_alternate_start.startedInTown = "PEWTER_CITY"
+run.loader.modSave.jj_alternate_start.introScene = nil
+Runtime.emit("map.entered", { mapId = "PEWTER_CITY" })
+T.eq(game.save.party[1] and game.save.party[1].species, "BULBASAUR",
+  "no overworld: the fallback grants a starter")
+T.eq(run.loader.modSave.jj_alternate_start.introScene, "done",
+  "the fallback closes the scene")
+
+-- not an alternate-start save: nothing happens at all
+run.loader.modSave.jj_alternate_start.startedInTown = nil
+run.loader.modSave.jj_alternate_start.introScene = nil
+game, owState = sceneWorld("PEWTER_CITY")
+run.loader.modSave.jj_alternate_start.startedInTown = nil
+Runtime.emit("map.entered", { mapId = "PEWTER_CITY" })
+T.eq(#runtimeObjects("PEWTER_CITY"), 0, "vanilla saves get no scene")
+
+CoreGame.stack = nil
 run.release()
 T.finish("jj_alternate_start")

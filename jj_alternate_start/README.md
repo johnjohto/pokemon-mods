@@ -1,35 +1,28 @@
 # Alternate Start
 
-Begin a new game in any town or city instead of Pallet Town, with the
-tutorial quests already done.
+Begin a new game in any of nine towns instead of Pallet Town, with the
+tutorial quests already done — and, if you want, with the story intact.
 
-Oak's speech ends with two extra questions:
+Oak's speech ends with one question: **where to?** What happens next
+depends on the STORY BEATS option (on by default):
 
-1. **Which starter?** Bulbasaur, Charmander, or Squirtle, at level 5.
-2. **Where to?** Any of nine towns and cities, each with a guaranteed
-   way out (Fuchsia and Cinnabar would softlock a fresh save, so they
-   are not offered; a Saffron start opens the thirsty guards' gates).
+- **Story beats on:** Oak and Blue come to see you off at your new
+  town's Pokémon Center. Pick your starter from Oak's balls, fight Blue
+  and his counter-pick right there, and get the Pokédex from Oak
+  himself. Blue keeps showing up all game: his ambushes are re-gated on
+  gym badges (Route 22 after 1, Cerulean after 2, S.S. Anne after 3,
+  Pokémon Tower after 4, Silph Co. after 6), so they happen in order
+  even without the Pallet tutorial.
+- **Story beats off:** the quick start. Pick a starter in the speech
+  and simply appear in your new town, everything already in hand.
 
-Pick anywhere but Pallet Town and you start at that town's Pokémon Center,
-starter in your party, Pokédex in hand, parcel quest done, and the
-Viridian old man already off the road. Blackouts and escape ropes bring
-you back to your town's Pokémon Center.
+Either way: Pokédex and parcel quest count as done, the Viridian old
+man is off the road, blackouts and escape ropes return to your town's
+Pokémon Center, and every offered town has a guaranteed way out
+(Fuchsia and Cinnabar would softlock a fresh save, so they're not
+offered; a Saffron start opens the thirsty guards' gates).
 
-**Story beats** (on by default, toggleable in the mod's options): Blue
-stays in your journey. His ambushes are re-gated on gym badges so they
-happen in order even without the Pallet tutorial:
-
-- Route 22, first fight — 1 badge
-- Cerulean City — 2 badges
-- S.S. Anne — 3 badges
-- Pokémon Tower — 4 badges
-- Silph Co. — 6 badges
-- Route 22, pre-Indigo — unchanged (Giovanni)
-
-Only applies to saves started with this mod; classic and vanilla saves
-play exactly as before.
-
-Pick **PALLET TOWN (CLASSIC)** and none of this happens: the game is
+Pick **PALLET (CLASSIC)** and none of this happens: the game is
 completely vanilla.
 
 ## Install
