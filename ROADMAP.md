@@ -7,12 +7,12 @@ starts.
 ## Done
 
 - **jj_repel_prompt** — asks "Use another?" when a Repel wears off.
+- **jj_alternate_start** — begin a new game tutorial-free at any town,
+  city, or flyable location.
 
 ## Next
 
-- **jj_alternate_start** — begin a new game tutorial-free at any town,
-  city, or flyable location. Design needs a grilling first: starting
-  party, Pokédex, money, and which story flags count as "done".
+- **More QoL mods** — to be grilled out before building.
 
 ## Later
 
