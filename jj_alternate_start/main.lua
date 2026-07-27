@@ -15,7 +15,7 @@
 return function(mod)
   -- in flyOrder, minus the dungeon landings
   local TOWNS = {
-    { id = "PALLET_TOWN", label = "PALLET TOWN (CLASSIC)" },
+    { id = "PALLET_TOWN", label = "PALLET (CLASSIC)" },
     { id = "VIRIDIAN_CITY", label = "VIRIDIAN CITY" },
     { id = "PEWTER_CITY", label = "PEWTER CITY" },
     { id = "CERULEAN_CITY", label = "CERULEAN CITY" },
