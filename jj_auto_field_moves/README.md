@@ -1,6 +1,8 @@
 # Auto Field Moves
 
-Field moves fire on contact instead of from the party menu:
+Field moves fire on contact instead of from the party menu, with no
+textboxes: the move just happens (you still get the animation, sound,
+and white blink):
 
 - Walk into **water** to surf straight on.
 - Walk into **trees, gym plants, or tall grass** to cut them down.

@@ -22,25 +22,27 @@ return function(mod)
     return o ~= nil and o:partyKnows(moveId) ~= nil
   end
 
-  -- the vanilla STRENGTH activation (start_sub_menus.asm .strength):
-  -- set the flag, then the two texts with the user's cry between
+  -- no textboxes on contact triggers: the move just happens.  For the
+  -- engine's own flows (surf, cut) the text carries the continuation, so
+  -- fast-forward it: pop the box and run its callback immediately, which
+  -- keeps every engine step (swap, animation, white flash, sound) while
+  -- the text never appears
+  local function skipText()
+    local top = game.stack:top()
+    if top and getmetatable(top) == TextBox then
+      game.stack:pop()
+      if top.onDone then top.onDone() end
+    end
+  end
+
+  -- the vanilla STRENGTH activation minus the texts (start_sub_menus.asm
+  -- .strength): set the flag, play the user's cry, blink white
   local function activateStrength(o)
     local mon = o:partyKnows("STRENGTH")
     if not mon then return end
     o.strengthActive = true
-    local def = game.data.pokemon[mon.species]
-    local name = mon.nickname or def.name
-    local t1 = (game.data.text._UsedStrengthText
-      or "{RAM:wNameBuffer} used\nSTRENGTH."):gsub("{RAM:wNameBuffer}", name)
-    local t2 = (game.data.text._CanMoveBouldersText
-      or "{RAM:wNameBuffer} can\nmove boulders."):gsub("{RAM:wNameBuffer}", name)
-    game.stack:push(TextBox.new(game, t1, function()
-      game.stack:push(TextBox.new(game, t2, function()
-        game.stack:push(require("src.render.Transition").whiteFlash(game))
-      end))
-    end, { auto = { sound = function()
-      return require("src.core.Sound").playCry(game.data, mon.species)
-    end } }))
+    require("src.core.Sound").playCry(game.data, mon.species)
+    game.stack:push(require("src.render.Transition").whiteFlash(game))
     mod.log:info("auto STRENGTH activated")
   end
 
@@ -55,11 +57,13 @@ return function(mod)
       if ctx.map:isWaterCell(ctx.toX, ctx.toY) and not o.player.surfing
          and o:useSurfFieldMove() == "ok" then
         o:trySurf(ctx.toX, ctx.toY)
+        skipText()
         return false
       end
       -- trees, gym plants, tall grass: useCutFieldMove gates on the faced
       -- cell, which is exactly the blocked step's target
       if o:useCutFieldMove() == "ok" and o:tryCut(ctx.toX, ctx.toY) then
+        skipText()
         mod.log:info("auto CUT at %d,%d", ctx.toX, ctx.toY)
         return false
       end
@@ -74,18 +78,14 @@ return function(mod)
     return false
   end)
 
-  -- entering a dark cave FLASHes (Rock Tunnel); the party-menu action's
-  -- own sequence, triggered by the map change instead
+  -- entering a dark cave FLASHes (Rock Tunnel): the party-menu action's
+  -- state change plus its white blink, without the text
   mod.events:on("map.entered", function()
     local o = ow()
     if not o or not o.dark or not knows("FLASH") then return end
     o.dark = false
     game.save.flashLit = true
-    game.stack:push(TextBox.new(game,
-      game.data.text._FlashLightsAreaText
-      or "A blinding FLASH\nlights the area!", function()
-        game.stack:push(require("src.render.Transition").whiteFlash(game))
-      end))
+    game.stack:push(require("src.render.Transition").whiteFlash(game))
     mod.log:info("auto FLASH lit %s", tostring(o.map and o.map.id))
   end)
 end

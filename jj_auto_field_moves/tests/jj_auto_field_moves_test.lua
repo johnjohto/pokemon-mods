@@ -102,7 +102,7 @@ ctx = { mover = o.player, reason = "tile", map = waterMap(false),
 blockedStep(ctx)
 T.eq(#o.cutCalls, 0, "nothing to cut stays a plain bump")
 
--- boulder contact activates STRENGTH once
+-- boulder contact activates STRENGTH once, with no textbox
 game, o = newWorld({
   npc = { def = { sprite = "SPRITE_BOULDER" } },
   knower = { species = "ABRA" },
@@ -111,8 +111,8 @@ ctx = { mover = o.player, reason = "entity", map = waterMap(false),
         toX = 5, toY = 6 }
 blockedStep(ctx)
 T.check(o.strengthActive, "boulder contact activates STRENGTH")
-T.check(getmetatable(game.stack:top()) == TextBox,
-  "the used-STRENGTH text shows")
+T.check(getmetatable(game.stack:top()) ~= TextBox,
+  "the activation shows no textbox")
 local boxes = #game.stack.states
 blockedStep(ctx)
 T.eq(#game.stack.states, boxes, "an active STRENGTH is not re-announced")
@@ -124,13 +124,30 @@ ctx = { mover = o.player, reason = "entity", map = waterMap(false),
 blockedStep(ctx)
 T.check(not o.strengthActive, "no STRENGTH mon, no activation")
 
--- entering a dark cave FLASHes
+-- the engine's own text gets fast-forwarded: the box never shows but its
+-- continuation (swap, flash, sound) still runs
+game, o = newWorld()
+local cutContinuation = false
+o.tryCut = function(s, x, y)
+  s.cutCalls[#s.cutCalls + 1] = { x, y }
+  game.stack:push(TextBox.new(game, "ABRA hacked\naway with CUT!",
+    function() cutContinuation = true end))
+  return true
+end
+ctx = { mover = o.player, reason = "tile", map = waterMap(false),
+        toX = 3, toY = 4 }
+blockedStep(ctx)
+T.check(getmetatable(game.stack:top()) ~= TextBox,
+  "the used-CUT text never appears")
+T.check(cutContinuation, "the cut's continuation still ran")
+
+-- entering a dark cave FLASHes, with no textbox
 game, o = newWorld({ dark = true, knower = { species = "ABRA" } })
 Runtime.emit("map.entered", { mapId = "ROCK_TUNNEL_1F" })
 T.check(not o.dark, "entering the dark cave lights it")
 T.check(game.save.flashLit, "the lit state persists on the save")
-T.check(getmetatable(game.stack:top()) == TextBox,
-  "the FLASH text shows")
+T.check(getmetatable(game.stack:top()) ~= TextBox,
+  "the FLASH shows no textbox")
 
 game, o = newWorld({ dark = false, knower = { species = "ABRA" } })
 Runtime.emit("map.entered", { mapId = "PALLET_TOWN" })
