@@ -57,6 +57,12 @@ return function(mod)
           sp:recordAnswer(townStep, list.index, item.label, item.value)
           done()
         end,
+        -- B pops the list itself; answer classic so the speech is never
+        -- left waiting on a choice that is gone
+        onCancel = function()
+          sp:recordAnswer(townStep, 1, TOWNS[1].label, TOWNS[1].id)
+          done()
+        end,
       }))
     end
     mod.ui.insertStepBefore(steps, "shrink", townStep)

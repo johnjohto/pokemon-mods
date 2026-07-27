@@ -75,6 +75,23 @@ T.eq(game.stack:top(), nil, "choosing closes the list")
 T.eq(speech.answers.jj_start_town, "VIRIDIAN_CITY", "the answer is recorded")
 T.check(advanced, "choosing advances the speech")
 
+-- B on the town list answers classic instead of stranding the speech
+game = newGameDouble()
+speech = {
+  game = game,
+  answers = {},
+  recordAnswer = function(self, step, index, label, value)
+    self.answers[step.saveKey] = value
+  end,
+}
+advanced = false
+townStep.run(speech, function() advanced = true end)
+list = game.stack:top()
+game.stack:pop() -- ListMenu pops itself on B
+list.onCancel()
+T.eq(speech.answers.jj_start_town, "PALLET_TOWN", "B answers the classic start")
+T.check(advanced, "B still advances the speech")
+
 -- ------- finished: starter, flags, heal point, warp
 
 Runtime.emit("intro.oak_speech.finished", {
