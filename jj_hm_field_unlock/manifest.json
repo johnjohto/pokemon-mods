@@ -1,0 +1,9 @@
+{
+  "id": "jj_hm_field_unlock",
+  "name": "HM Field Unlock",
+  "version": "1.0.0",
+  "entry": "main.lua",
+  "category": "MECHANIC",
+  "permissions": ["engine_internals"],
+  "description": "Use HM moves in the field without teaching them: a party pokémon that can learn the move, the HM in your bag or PC box, and the badge are enough. Battle use still requires teaching."
+}
