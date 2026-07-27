@@ -1,0 +1,9 @@
+{
+  "id": "jj_repel_prompt",
+  "name": "Repel Reuse Prompt",
+  "version": "1.0.0",
+  "entry": "main.lua",
+  "category": "MECHANIC",
+  "permissions": ["engine_internals"],
+  "description": "When a Repel wears off, ask whether to use another one, like the later generations."
+}
