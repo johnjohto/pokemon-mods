@@ -13,4 +13,4 @@ Only affects new games started while the mod is on.
 
 
 ## Download
-:link: https://github.com/johnjohto/pokemon-mods/tree/main/jj_alternate_start
+:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_alternate_start-v1.0.3

@@ -11,4 +11,4 @@ Works everywhere, no setup: install and forget it.
 
 
 ## Download
-:link: https://github.com/johnjohto/pokemon-mods/tree/main/jj_repel_prompt
+:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_repel_prompt-v1.0.0

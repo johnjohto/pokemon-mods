@@ -14,4 +14,4 @@ Every normal rule still applies: you need the move (or **HM Field Unlock**), the
 
 
 ## Download
-:link: https://github.com/johnjohto/pokemon-mods/tree/main/jj_auto_field_moves
+:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_auto_field_moves-v1.1.1
