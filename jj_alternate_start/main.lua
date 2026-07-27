@@ -14,6 +14,11 @@
 --     Pokémon Center.
 return function(mod)
   -- in flyOrder, minus the dungeon landings
+  -- every town here has an ungated way out (verified against the map
+  -- scripts).  FUCHSIA (all land exits sealed: Snorlax on Route 12, the
+  -- Route 18 bike gate, Surf on 19) and CINNABAR (water-only exits, no
+  -- surf source on the island) would softlock a fresh save, so they are
+  -- not offered.  SAFFRON is offered but gets the gate fix below.
   local TOWNS = {
     { id = "PALLET_TOWN", label = "PALLET (CLASSIC)" },
     { id = "VIRIDIAN_CITY", label = "VIRIDIAN CITY" },
@@ -22,9 +27,7 @@ return function(mod)
     { id = "LAVENDER_TOWN", label = "LAVENDER TOWN" },
     { id = "VERMILION_CITY", label = "VERMILION CITY" },
     { id = "CELADON_CITY", label = "CELADON CITY" },
-    { id = "FUCHSIA_CITY", label = "FUCHSIA CITY" },
     { id = "SAFFRON_CITY", label = "SAFFRON CITY" },
-    { id = "CINNABAR_ISLAND", label = "CINNABAR ISLAND" },
     { id = "INDIGO_PLATEAU", label = "INDIGO PLATEAU" },
   }
   local STARTERS = { "BULBASAUR", "CHARMANDER", "SQUIRTLE" }
@@ -105,6 +108,12 @@ return function(mod)
       VIRIDIANCITY_OLD_MAN_SLEEPY = false,
       VIRIDIANCITY_OLD_MAN = true,
     }
+    -- a Saffron start would otherwise be a hard softlock: all four gate
+    -- guards block BOTH directions without a drink and the city sells
+    -- none.  The guards read as already served for this save only.
+    if townId == "SAFFRON_CITY" then
+      flags.EVENT_GAVE_GUARDS_DRINK = true
+    end
 
     -- blackouts and escape ropes return to this town's Pokémon Center
     local fw = (game.data.field.flyWarps or {})[townId]

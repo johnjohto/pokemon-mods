@@ -1,7 +1,7 @@
 {
   "id": "jj_alternate_start",
   "name": "Alternate Start",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "entry": "main.lua",
   "category": "MECHANIC",
   "permissions": ["engine_internals"],

@@ -1,6 +1,6 @@
 **Alternate Start**
 
-Why start in Pallet Town every single time? Begin your journey in any of the eleven towns and cities, with the tutorial already behind you.
+Why start in Pallet Town every single time? Begin your journey in any of nine towns and cities, with the tutorial already behind you.
 
 :star2: Pick Bulbasaur, Charmander, or Squirtle at the end of Oak's speech
 :house: Pick your hometown and spawn at its Pokémon Center (blackouts and escape ropes bring you back there too)
@@ -11,7 +11,7 @@ Why start in Pallet Town every single time? Begin your journey in any of the ele
 
 Only affects new games started while the mod is on.
 
-`jj_alternate_start` v1.1.0
+`jj_alternate_start` v1.1.1
 
 ## Download
-:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_alternate_start-v1.1.0
+:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_alternate_start-v1.1.1

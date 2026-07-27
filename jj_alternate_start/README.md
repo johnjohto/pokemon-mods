@@ -6,7 +6,9 @@ tutorial quests already done.
 Oak's speech ends with two extra questions:
 
 1. **Which starter?** Bulbasaur, Charmander, or Squirtle, at level 5.
-2. **Where to?** Any of the eleven towns and cities.
+2. **Where to?** Any of nine towns and cities, each with a guaranteed
+   way out (Fuchsia and Cinnabar would softlock a fresh save, so they
+   are not offered; a Saffron start opens the thirsty guards' gates).
 
 Pick anywhere but Pallet Town and you start at that town's Pokémon Center,
 starter in your party, Pokédex in hand, parcel quest done, and the

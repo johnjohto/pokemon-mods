@@ -68,8 +68,13 @@ local advanced = false
 townStep.run(speech, function() advanced = true end)
 local list = game.stack:top()
 T.check(list and getmetatable(list) == ListMenu, "the town step opens a list")
-T.eq(#list.items, 11, "eleven destinations including the classic start")
+T.eq(#list.items, 9, "nine escapable destinations including the classic start")
 T.eq(list.items[1].value, "PALLET_TOWN", "the classic start leads the list")
+local townIds = {}
+for _, item in ipairs(list.items) do townIds[item.value] = true end
+T.check(not townIds.FUCHSIA_CITY and not townIds.CINNABAR_ISLAND,
+  "softlock towns are not offered")
+T.check(townIds.SAFFRON_CITY ~= nil, "Saffron stays, with its gate fix")
 list.onChoose(list.items[2], list) -- VIRIDIAN CITY
 T.eq(game.stack:top(), nil, "choosing closes the list")
 T.eq(speech.answers.jj_start_town, "VIRIDIAN_CITY", "the answer is recorded")
@@ -156,6 +161,25 @@ Runtime.emit("intro.oak_speech.finished", {
 })
 T.eq(#game.save.party, 0, "no answers, no starter")
 T.eq(game.warpedTo, nil, "no answers, no warp")
+
+-- ------- softlock prevention: the Saffron gate fix, scoped to that start
+
+game = newGameDouble()
+Runtime.emit("intro.oak_speech.finished", {
+  speech = { game = game },
+  answers = { jj_start_town = "SAFFRON_CITY", jj_starter = "SQUIRTLE" },
+})
+Runtime.emit("screen.popped", { state = { } }) -- no warp pending check here
+T.check(game.save.flags.EVENT_GAVE_GUARDS_DRINK,
+  "a Saffron start opens the thirsty guards' gates")
+
+game = newGameDouble()
+Runtime.emit("intro.oak_speech.finished", {
+  speech = { game = game },
+  answers = { jj_start_town = "PEWTER_CITY", jj_starter = "SQUIRTLE" },
+})
+T.eq(game.save.flags.EVENT_GAVE_GUARDS_DRINK, nil,
+  "other towns keep the vanilla drink fetch")
 
 -- ------- story beats: rival scenes re-gated on badges (v2)
 
