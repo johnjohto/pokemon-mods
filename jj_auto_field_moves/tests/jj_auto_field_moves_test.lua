@@ -141,6 +141,23 @@ T.check(getmetatable(game.stack:top()) ~= TextBox,
   "the used-CUT text never appears")
 T.check(cutContinuation, "the cut's continuation still ran")
 
+-- surf skips the white blink too: the step onto the water still happens
+game, o = newWorld()
+local surfStepped = false
+o.trySurf = function(s, x, y)
+  s.surfCalls[#s.surfCalls + 1] = { x, y }
+  local Transition = require("src.render.Transition")
+  game.stack:push(TextBox.new(game, "SQUIRTLE got on!", function()
+    game.stack:push(Transition.whiteFlash(game, nil,
+      function() surfStepped = true end))
+  end))
+end
+ctx = { mover = o.player, reason = "tile", map = waterMap(true),
+        toX = 7, toY = 9 }
+blockedStep(ctx)
+T.eq(game.stack:top(), nil, "no text and no flash remain on the stack")
+T.check(surfStepped, "the step onto the water still ran")
+
 -- entering a dark cave FLASHes, with no textbox
 game, o = newWorld({ dark = true, knower = { species = "ABRA" } })
 Runtime.emit("map.entered", { mapId = "ROCK_TUNNEL_1F" })

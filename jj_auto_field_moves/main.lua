@@ -35,6 +35,18 @@ return function(mod)
     end
   end
 
+  -- surf only: the vanilla party-menu flow follows the text with a
+  -- full-screen white blink (GBPalWhiteOutWithDelay3), which reads as a
+  -- glitch on a contact trigger.  Run the transition's step-forward
+  -- continuation without the flash itself.
+  local function skipFlash()
+    local top = game.stack:top()
+    if top and top.onDone and top.frames and top.t then
+      game.stack:pop()
+      top.onDone()
+    end
+  end
+
   -- the vanilla STRENGTH activation minus the texts (start_sub_menus.asm
   -- .strength): set the flag, play the user's cry, blink white
   local function activateStrength(o)
@@ -58,6 +70,7 @@ return function(mod)
          and o:useSurfFieldMove() == "ok" then
         o:trySurf(ctx.toX, ctx.toY)
         skipText()
+        skipFlash()
         return false
       end
       -- trees, gym plants, tall grass: useCutFieldMove gates on the faced
