@@ -115,6 +115,10 @@ return function(mod)
     grantedFor = ev.speech
     save.lastHeal = { map = townId, x = fw.x, y = fw.y }
     save.lastOutdoor = { id = townId, x = fw.x, y = fw.y }
+    -- this save is an alternate-start run: story-beats features (the
+    -- visit scene, badge-gated rivals) key off this marker so vanilla
+    -- and classic-start saves are untouched
+    mod.save:set("startedInTown", townId)
     -- do NOT warp here: the speech pops itself right after this event, so
     -- anything pushed now is popped in its place and the speech stays
     -- alive, re-firing "finished" every frame. Wait for the pop.
@@ -129,4 +133,141 @@ return function(mod)
     local game = w.speech.game
     game.overworld:startWarpTo(w.townId, w.fw.x, w.fw.y, "down")
   end)
+
+  -- ------------------------------------------------------------------
+  -- Story beats: Blue's scenes re-gated on gym badges (v2, community
+  -- request).  Vanilla ties his appearances to the Pallet tutorial flags
+  -- an alternate start never raises, so without this he mostly vanishes.
+  -- Each ambush is suppressed below its badge threshold; above it the
+  -- base scene runs unchanged.  Applies only to alternate-start saves
+  -- (the startedInTown marker) with the STORY BEATS option on.
+  -- ------------------------------------------------------------------
+
+  mod.options:define({
+    { key = "storyBeats", label = "STORY BEATS", type = "toggle",
+      default = true },
+  })
+
+  local MapScripts = require("src.script.MapScripts")
+  local Badges = require("src.inventory.Badges")
+  local Music = require("src.core.Music")
+
+  local function storyActive()
+    return mod.options:get("storyBeats") ~= false
+       and mod.save:get("startedInTown") ~= nil
+  end
+
+  local function badgeCount(g)
+    return Badges.count(g.data, g.save)
+  end
+
+  local function atCells(cells, x, y)
+    for _, c in ipairs(cells) do
+      if c[1] == x and c[2] == y then return true end
+    end
+    return false
+  end
+
+  local function busy(ow)
+    return ow.runner:isRunning() or #(ow.scriptMoves or {}) > 0
+  end
+
+  -- a suppression that yields to the base scene once the threshold is met
+  local function suppressBelow(cells, flag, threshold)
+    return function(g, ow, x, y)
+      if not storyActive() then return false end
+      if g.save.flags[flag] then return false end
+      if not atCells(cells, x, y) then return false end
+      if busy(ow) then return false end
+      return badgeCount(g) < threshold
+    end
+  end
+
+  -- Route 22's first rival fight is special: the base scene only fires
+  -- before Brock, so past the threshold the mod runs the ambush itself
+  -- (same rows as story5's route22Scene for visit 1)
+  local function route22ExitDirs(py)
+    if py == 5 then
+      return { "right", "right", "down", "down", "down", "down", "down" }
+    end
+    return { "up", "right", "right", "right",
+             "down", "down", "down", "down", "down", "down" }
+  end
+
+  local function route22FirstBattleRows(py)
+    return {
+      { "show_object", "ROUTE_22", "ROUTE22_RIVAL1" },
+      { "move_npc_to", 1, 28, py },
+      { "face_object", 1, "right" },
+      { "show_text", "_Route22RivalBeforeBattleText1" },
+      { "rival_battle", "OPP_RIVAL1", 4 },
+      { "jump_if_false", 11 },
+      { "set_flag", "EVENT_BEAT_ROUTE22_RIVAL_1ST_BATTLE" },
+      { "show_text", "_Route22Rival1DefeatedText" },
+      { "show_text", "_Route22RivalAfterBattleText1" },
+      { "walk_npc", 1, route22ExitDirs(py) },
+      { "hide_object", "ROUTE_22", "ROUTE22_RIVAL1" },
+    }
+  end
+
+  local gates = {
+    ROUTE_22 = {
+      onStep = function(g, ow, x, y)
+        if not storyActive() then return false end
+        if not atCells({ { 29, 4 }, { 29, 5 } }, x, y) then return false end
+        local f = g.save.flags
+        -- nothing pending: the base owns the pre-Indigo second fight
+        if not f.EVENT_GOT_POKEDEX or f.EVENT_BEAT_ROUTE22_RIVAL_1ST_BATTLE then
+          return false
+        end
+        if busy(ow) then return false end
+        if badgeCount(g) < 1 then
+          return true -- too early: swallow the base's pre-Brock ambush
+        end
+        ow.player.facing = "left"
+        Music.play(g.data, "Music_MeetRival")
+        ow.runner:run(route22FirstBattleRows(y))
+        return true
+      end,
+    },
+    CERULEAN_CITY = {
+      onStep = suppressBelow({ { 20, 6 }, { 21, 6 } },
+                             "EVENT_BEAT_CERULEAN_RIVAL", 2),
+    },
+    SS_ANNE_2F = {
+      onStep = suppressBelow({ { 36, 8 }, { 37, 8 } },
+                             "EVENT_BEAT_SS_ANNE_RIVAL", 3),
+    },
+    POKEMON_TOWER_2F = {
+      onStep = suppressBelow({ { 15, 5 }, { 14, 6 } },
+                             "EVENT_BEAT_POKEMON_TOWER_RIVAL", 4),
+      -- the tower rival stands on the map and can be talked to, so the
+      -- fight needs gating there too; at threshold the base takes over
+      talk = {
+        TEXT_POKEMONTOWER2F_RIVAL = function(g, ow, npc, done)
+          if storyActive() and badgeCount(g) < 4
+             and not g.save.flags.EVENT_BEAT_POKEMON_TOWER_RIVAL then
+            ow.runner:run({
+              { "show_text",
+                "BLUE: You? Not worth\nmy time yet.\fCome back with some\nBADGES. Smell ya!" },
+            }, { npc = npc, onDone = done })
+            return
+          end
+          local base = MapScripts.baseTalk("POKEMON_TOWER_2F",
+                                           "TEXT_POKEMONTOWER2F_RIVAL")
+          if base then return base(g, ow, npc, done) end
+          if done then done() end
+        end,
+      },
+    },
+    SILPH_CO_7F = {
+      onStep = suppressBelow({ { 3, 2 }, { 3, 3 } },
+                             "EVENT_BEAT_SILPH_CO_RIVAL", 6),
+    },
+  }
+
+  for mapId, contribution in pairs(gates) do
+    mod.content.map_scripts:register(mapId, contribution)
+  end
+  mod.exports.rivalGates = gates
 end

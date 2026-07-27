@@ -157,5 +157,110 @@ Runtime.emit("intro.oak_speech.finished", {
 T.eq(#game.save.party, 0, "no answers, no starter")
 T.eq(game.warpedTo, nil, "no answers, no warp")
 
+-- ------- story beats: rival scenes re-gated on badges (v2)
+
+local gates = run.loader.exports.jj_alternate_start.rivalGates
+T.check(type(gates) == "table", "rival gate contributions are exported")
+require("data.scripts.init") -- populate the base talk registry
+
+local BADGES = { "BOULDERBADGE", "CASCADEBADGE", "THUNDERBADGE",
+                 "RAINBOWBADGE", "SOULBADGE", "MARSHBADGE" }
+local function gateGame(nBadges, flags)
+  local save = { flags = flags or { EVENT_GOT_POKEDEX = true },
+                 inventory = {} }
+  for i = 1, nBadges do save.inventory[BADGES[i]] = 1 end
+  local g = { data = Data, save = save }
+  local ow = {
+    player = { facing = "down", cellX = 14 },
+    scriptMoves = {},
+    runner = {
+      isRunning = function() return false end,
+      run = function(self, rows) self.ranRows = rows end,
+    },
+  }
+  return g, ow
+end
+
+local function ranRows(ow) return ow.runner.ranRows end
+
+local modSave = run.loader.modSave.jj_alternate_start
+  or {}
+run.loader.modSave.jj_alternate_start = modSave
+
+-- Route 22: suppressed before the first badge...
+modSave.startedInTown = "PEWTER_CITY"
+local g, ow = gateGame(0)
+T.check(gates.ROUTE_22.onStep(g, ow, 29, 4) == true
+  and ranRows(ow) == nil, "route 22 rival waits for a badge")
+
+-- ...and run by the mod at one badge, since the base scene dies post-Brock
+g, ow = gateGame(1)
+T.check(gates.ROUTE_22.onStep(g, ow, 29, 4) == true,
+  "route 22 rival appears at one badge")
+T.check(ranRows(ow) and ranRows(ow)[5]
+  and ranRows(ow)[5][1] == "rival_battle"
+  and ranRows(ow)[5][2] == "OPP_RIVAL1" and ranRows(ow)[5][3] == 4,
+  "the mod runs the vanilla first-fight rows")
+T.eq(ow.player.facing, "left", "the ambush faces the player left")
+
+-- the pre-Indigo second fight stays with the base scene
+g, ow = gateGame(6, { EVENT_GOT_POKEDEX = true,
+                      EVENT_BEAT_ROUTE22_RIVAL_1ST_BATTLE = true,
+                      EVENT_BEAT_GIOVANNI = true })
+T.eq(gates.ROUTE_22.onStep(g, ow, 29, 4), false,
+  "the second route 22 fight is left to the base")
+
+-- vanilla and classic saves (no marker) are untouched
+modSave.startedInTown = nil
+g, ow = gateGame(1)
+T.eq(gates.ROUTE_22.onStep(g, ow, 29, 4), false,
+  "no alternate-start marker, no gating")
+modSave.startedInTown = "PEWTER_CITY"
+
+-- the suppression ladder: below the threshold swallowed, at it released
+local ladder = {
+  { map = "CERULEAN_CITY", flag = "EVENT_BEAT_CERULEAN_RIVAL",
+    x = 20, y = 6, need = 2 },
+  { map = "SS_ANNE_2F", flag = "EVENT_BEAT_SS_ANNE_RIVAL",
+    x = 36, y = 8, need = 3 },
+  { map = "POKEMON_TOWER_2F", flag = "EVENT_BEAT_POKEMON_TOWER_RIVAL",
+    x = 15, y = 5, need = 4 },
+  { map = "SILPH_CO_7F", flag = "EVENT_BEAT_SILPH_CO_RIVAL",
+    x = 3, y = 2, need = 6 },
+}
+for _, c in ipairs(ladder) do
+  g, ow = gateGame(c.need - 1)
+  T.check(gates[c.map].onStep(g, ow, c.x, c.y) == true,
+    c.map .. " rival suppressed at " .. (c.need - 1) .. " badges")
+  g, ow = gateGame(c.need)
+  T.check(gates[c.map].onStep(g, ow, c.x, c.y) == false,
+    c.map .. " rival released at " .. c.need .. " badges")
+  g, ow = gateGame(c.need - 1,
+    { EVENT_GOT_POKEDEX = true, [c.flag] = true })
+  T.check(gates[c.map].onStep(g, ow, c.x, c.y) == false,
+    c.map .. " already-beaten rival is never suppressed")
+end
+
+-- the tower rival can also be talked to: brush-off under 4 badges,
+-- the real scene at 4
+g, ow = gateGame(3)
+gates.POKEMON_TOWER_2F.talk.TEXT_POKEMONTOWER2F_RIVAL(g, ow, nil, nil)
+T.check(ranRows(ow) and ranRows(ow)[1][1] == "show_text"
+  and ranRows(ow)[1][2]:find("BADGES", 1, true) ~= nil,
+  "tower talk brushes the player off under 4 badges")
+g, ow = gateGame(4)
+gates.POKEMON_TOWER_2F.talk.TEXT_POKEMONTOWER2F_RIVAL(g, ow, nil, nil)
+T.check(ranRows(ow) and ranRows(ow)[2]
+  and ranRows(ow)[2][1] == "check_flag"
+  and ranRows(ow)[2][2] == "EVENT_BEAT_POKEMON_TOWER_RIVAL",
+  "tower talk runs the vanilla scene at 4 badges")
+
+-- the STORY BEATS option switches the gating off
+run.loader.modOptions.jj_alternate_start = { storyBeats = false }
+g, ow = gateGame(0)
+T.eq(gates.CERULEAN_CITY.onStep(g, ow, 20, 6), false,
+  "STORY BEATS off disables the gating")
+run.loader.modOptions.jj_alternate_start = nil
+
 run.release()
 T.finish("jj_alternate_start")

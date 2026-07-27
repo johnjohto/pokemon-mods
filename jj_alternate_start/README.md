@@ -13,6 +13,20 @@ starter in your party, Pokédex in hand, parcel quest done, and the
 Viridian old man already off the road. Blackouts and escape ropes bring
 you back to your town's Pokémon Center.
 
+**Story beats** (on by default, toggleable in the mod's options): Blue
+stays in your journey. His ambushes are re-gated on gym badges so they
+happen in order even without the Pallet tutorial:
+
+- Route 22, first fight — 1 badge
+- Cerulean City — 2 badges
+- S.S. Anne — 3 badges
+- Pokémon Tower — 4 badges
+- Silph Co. — 6 badges
+- Route 22, pre-Indigo — unchanged (Giovanni)
+
+Only applies to saves started with this mod; classic and vanilla saves
+play exactly as before.
+
 Pick **PALLET TOWN (CLASSIC)** and none of this happens: the game is
 completely vanilla.
 
