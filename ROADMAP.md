@@ -12,16 +12,15 @@ starts.
 - **jj_hm_field_unlock** — HMs work in the field without being taught:
   a party pokémon that can learn the move, the HM in the bag or PC box,
   and the badge are enough. Battle still requires teaching.
+- **jj_auto_field_moves** — field moves fire on contact: water surfs,
+  cuttable tiles cut, boulders activate STRENGTH, dark caves FLASH.
+  FLY stays menu-only; composes with jj_hm_field_unlock automatically.
 
 ## Next
 
-- **jj_auto_field_moves** — automatic field move use. Walking into water
-  surfs instantly, cuttable tiles cut, boulders activate STRENGTH, dark
-  caves FLASH. FLY stays menu-only. Uses jj_hm_field_unlock's wider rule
-  when that mod is installed (optional dependency via mod interop).
+- **More QoL mods** — to be grilled out before building.
 
 ## Later
 
-- **Upstream eligibility hook** — file a PR proposing a proper
-  `fieldmove.eligibility` hook in partyKnows so jj_hm_field_unlock can
-  drop its runtime patch.
+- **Upstream eligibility hook** — filed as PR #310. If it lands,
+  jj_hm_field_unlock can drop its runtime patch.

@@ -1,0 +1,10 @@
+{
+  "id": "jj_auto_field_moves",
+  "name": "Auto Field Moves",
+  "version": "1.0.0",
+  "entry": "main.lua",
+  "category": "MECHANIC",
+  "permissions": ["engine_internals"],
+  "optional_dependencies": ["jj_hm_field_unlock"],
+  "description": "Field moves fire on contact: walk into water to surf, into trees to cut, into boulders for STRENGTH, and into dark caves for FLASH. FLY stays in the party menu."
+}
