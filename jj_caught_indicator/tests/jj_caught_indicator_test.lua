@@ -122,8 +122,8 @@ for style, rows in pairs(Indicator.ICONS) do
   T.check(ink > 0, style .. " actually draws something")
 end
 
-T.eq(Indicator.pixels("solid")[3], "XX.XXXXX",
-  "SOLID keeps its glint on the third row")
+T.eq(Indicator.pixels("gen2")[2], "XX.XXXXX",
+  "GEN 2 keeps its glint on the second row")
 T.eq(Indicator.pixels("ball")[1], "..XXXX..",
   "BALL is unchanged from the released art")
 T.eq(Indicator.pixels("nonsense"), Indicator.ICONS.ball,

@@ -12,7 +12,7 @@ return function(mod)
   mod.options:define({
     { key = "icon", label = "CAUGHT ICON", type = "choice",
       default = Indicator.DEFAULT_ICON,
-      choices = { { "BALL", "ball" }, { "SOLID", "solid" } } },
+      choices = { { "BALL", "ball" }, { "GEN 2", "gen2" } } },
   })
 
   local game

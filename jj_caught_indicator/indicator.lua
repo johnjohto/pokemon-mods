@@ -45,13 +45,13 @@ Indicator.ICONS = {
     "..XXXX..",
     "........",
   },
-  -- filled top with a glint at the upper left, the classic red-top
-  -- silhouette in one bit; it rides a pixel lower than the outline ball
-  solid = {
-    "........",
-    "..XXXX..",
+  -- the Gen 2 mark: a filled top with a glint at the upper left, the
+  -- classic red-top silhouette in one bit, over an open lower half
+  gen2 = {
+    ".XXXXXX.",
     "XX.XXXXX",
     "XXXXXXXX",
+    "X......X",
     "X......X",
     "X......X",
     ".XXXXXX.",
