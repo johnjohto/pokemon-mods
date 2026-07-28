@@ -326,11 +326,11 @@ return function(mod)
     local name = g.data.pokemon[species].name
     Music.play(g.data, "Music_MeetRival")
     mod.world:queueScript({
-      { "show_text", ("BLUE: I'll take this\none, gramps!\fYou got %s?\nWhatever. Mine is\nstronger anyway.\fLet's go, RED.\nRight here, right now!"):format(name) },
+      { "show_text", ("BLUE: I'll take this\none, gramps!\fYou got %s?\nWhatever. Mine is\nstronger anyway.\fLet's go, {PLAYER}.\nRight here, right now!"):format(name) },
       { "rival_battle", "OPP_RIVAL1", 1 },
       { "jump_if_false", 6 },
       { "show_text", "BLUE: What?!\nUnbelievable!\fI picked the wrong\nPOKéMON!" },
-      { "show_text", "OAK: Well done, RED!\fThis POKéDEX is\nyours now. It\nrecords every POKéMON\nyou see and catch.\fBLUE, do try to be\na little nicer." },
+      { "show_text", "OAK: Well done, {PLAYER}!\fThis POKéDEX is\nyours now. It\nrecords every POKéMON\nyou see and catch.\fBLUE, do try to be\na little nicer." },
       { "set_flag", "EVENT_BATTLED_RIVAL_IN_OAKS_LAB" },
     }, { onDone = function()
       -- the walk-off; on a blackout the map rebuilds mid-script and this
@@ -369,11 +369,11 @@ return function(mod)
     sceneNpcs[townId] = { oakId, blueId }
     local oakIdx, blueIdx = npcIndex(oakId), npcIndex(blueId)
     local ok, err = mod.world:queueScript({
-      { "move_npc_to", oakIdx, fw.x - 1, fw.y + 2 },
-      { "move_npc_to", blueIdx, fw.x + 1, fw.y + 2 },
+      { "move_npc_to", oakIdx, fw.x - 1, fw.y + 1 },
+      { "move_npc_to", blueIdx, fw.x + 1, fw.y + 1 },
       { "face_object", oakIdx, "up" },
       { "face_object", blueIdx, "up" },
-      { "show_text", "OAK: RED! There you\nare.\fI heard you were\nstarting your journey\nfrom here, so BLUE\nand I came to see\nyou off." },
+      { "show_text", "OAK: {PLAYER}! There you\nare.\fI heard you were\nstarting your journey\nfrom here, so BLUE\nand I came to see\nyou off." },
       { "show_text", "OAK: Now, choose your\nvery first POKéMON!" },
     }, { onDone = function()
       local Menu = require("src.ui.Menu")
