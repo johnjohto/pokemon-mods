@@ -10,7 +10,7 @@ Why start in Pallet Town every single time? Begin your journey in any of nine to
 
 Every town has a guaranteed way out: Fuchsia and Cinnabar would softlock a fresh save so they're not offered, and a Saffron start opens the thirsty guards' gates.
 
-`jj_alternate_start` v2.0.0
+`jj_alternate_start` v2.0.1
 
 ## Download
-:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_alternate_start-v2.0.0
+:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_alternate_start-v2.0.1
