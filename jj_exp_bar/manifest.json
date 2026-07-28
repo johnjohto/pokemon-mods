@@ -1,0 +1,9 @@
+{
+  "id": "jj_exp_bar",
+  "name": "EXP Bar",
+  "version": "1.0.0",
+  "entry": "main.lua",
+  "category": "UI",
+  "permissions": ["engine_internals"],
+  "description": "Shows a Gen 2-style experience bar under the player HP bar in battle."
+}

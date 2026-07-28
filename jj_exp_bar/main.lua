@@ -1,0 +1,97 @@
+-- EXP Bar: a Gen 2-style experience bar under the player HP bar in
+-- battle.  It fills as the active battler gains exp, wrapping through
+-- level-ups; every other state change (battle start, switch-in) snaps.
+--
+-- Deliberately thin: battle.overlay is a draw-only hook and all the state
+-- lives in expbar.lua, a pure module the headless tests drive directly.
+-- The engine applies exp before emitting battle.exp_gained, so the mod
+-- never touches battle logic -- it reads, eases, and draws.
+return function(mod)
+  local ExpBar = require("mods.jj_exp_bar.expbar")
+
+  mod.options:define({
+    { key = "bar_style", label = "EXP BAR", type = "choice",
+      default = "ink",
+      choices = { { "INK", "ink" }, { "GEN 2 BLUE", "blue" },
+                  { "HP MATCH", "hp" } } },
+    { key = "bar_y", label = "EXP BAR POS", type = "choice",
+      default = 90,
+      choices = { { "BORDER", 90 }, { "GEN 2", 89 } } },
+  })
+
+  local game
+  mod.events:on("game.ready", function(e) game = e.game end)
+
+  local bar = ExpBar.new()
+  ExpBar.active = bar -- exposed for the headless tests
+
+  -- the bar's only animation trigger.  EXP ALL shares fire one event per
+  -- recipient; like Gen 2, only the active battler's bar shows
+  mod.events:on("battle.exp_gained", function(e)
+    local b = e.battle
+    if not b or not b.player or e.mon ~= b.player.mon then return end
+    bar:onExpGained(b.data or (game and game.data), e.mon,
+                    e.gained or 0, e.levels)
+  end)
+
+  -- geometry: the bar rides the HUD box's bottom border row, flush to the
+  -- corner brackets (the left triangle ends at x=80; the right corner's
+  -- foot ends at x=148, minus one by request).  One pixel tall, fill
+  -- only -- a white track erases the box border and reads as a glitch.
+  -- Like Gen 2 it fills from right to left.  The Y option rides the
+  -- border row or sits one pixel above it (Gen 2's spot)
+  local X, W, H = 80, 67, 1
+
+  -- fill colors; the HP MATCH thresholds and palette are the engine's own
+  -- GetHealthBarColor cutoffs (>= 27/48 green, >= 10/48 yellow, else red)
+  -- with the SGB bar fills
+  local STYLES = {
+    ink = function() return 0, 0, 0 end,
+    blue = function() return 0.32, 0.50, 0.91 end,
+    hp = function(mon)
+      local maxhp = mon.stats and mon.stats.hp or 0
+      local px = maxhp > 0 and (mon.hp / maxhp) * 48 or 0
+      if px >= 27 then return 0.29, 0.65, 0.35 end
+      if px >= 10 then return 0.84, 0.65, 0 end
+      return 0.84, 0.32, 0.19
+    end,
+  }
+
+  mod.hooks:wrap("battle.overlay", function(nextFn, battle)
+    nextFn(battle)
+    if not game or not ExpBar.visibleFor(battle) then return end
+    -- a pushed screen (party, bag, a modal TextBox) draws its own UI over
+    -- the HUD region; the bar belongs to the battle scene only
+    if game.stack and game.stack:top() ~= battle then return end
+    local mon = battle.player.mon
+    bar:sync(battle.data or game.data, mon)
+    bar:tick()
+    -- Mimic's copy menu box (0,7) 16x6 covers the bar's row almost
+    -- entirely; the bar hides rather than drawing across it
+    if battle.phase == "mimicSelect" then return end
+    -- the same window-shake offsets BattleState:draw applies to the
+    -- scene, so the bar shakes with the rest of the UI
+    local fx = battle.fx
+    local sx = (fx and fx.shakeX) or 0
+    local sy = (fx and fx.shakeY) or 0
+    if sx == 0 and sy == 0 and fx and fx.shake and fx.shake > 0 then
+      sx = (battle.frame or 0) % 4 < 2 and 2 or -2
+    end
+    local g = love.graphics
+    local style = STYLES[mod.options:get("bar_style") or "ink"] or STYLES.ink
+    local r, gr, b = style(mon)
+    local y = mod.options:get("bar_y") or 90
+    -- Gen 2 fills right to left: the fill is anchored at the right edge.
+    -- During move selection the TYPE/PP panel box (0,8) 11x5 owns x<88 on
+    -- this row; clip the fill there instead of drawing across it
+    local left = X + W - math.floor(W * bar.displayed + 0.5)
+    if battle.phase == "moveSelect" and left < 88 then left = 88 end
+    local width = X + W - left
+    g.push()
+    g.translate(sx, sy)
+    g.setColor(r, gr, b, 1)
+    if width > 0 then g.rectangle("fill", left, y, width, H) end
+    g.setColor(1, 1, 1, 1)
+    g.pop()
+  end)
+end
