@@ -35,16 +35,17 @@ return function(game)
     U.wait(6)
   end
   U.wait(20)
+  -- the default mark first, so caught_hud.png is always the mod's own look
   U.shot(game, OUT .. "/caught_hud.png")
 
-  -- the second icon style, straight from the options row the mod defines
+  -- then the other style, set through the options row the mod defines
   local loader = game.mods
   loader.modOptions = loader.modOptions or {}
   loader.modOptions.jj_caught_indicator =
     loader.modOptions.jj_caught_indicator or {}
-  loader.modOptions.jj_caught_indicator.icon = "gen2"
+  loader.modOptions.jj_caught_indicator.icon = "ball"
   U.wait(20)
-  U.shot(game, OUT .. "/caught_hud_gen2.png")
+  U.shot(game, OUT .. "/caught_hud_ball.png")
 
   game.speedOverride = 1
   U.log("caught indicator captured (both icons); idling at the battle menu")

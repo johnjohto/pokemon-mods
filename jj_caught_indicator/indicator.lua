@@ -59,7 +59,7 @@ Indicator.ICONS = {
   },
 }
 
-Indicator.DEFAULT_ICON = "ball"
+Indicator.DEFAULT_ICON = "gen2"
 
 -- An unknown style is answered with the default rather than nothing: a
 -- stale saved option must never cost the player the icon entirely.

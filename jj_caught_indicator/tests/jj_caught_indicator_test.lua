@@ -101,8 +101,12 @@ T.eq(y, 8, "icon sits on the second row, above the HP bracket")
 local schema = run.loader.optionSchemas["jj_caught_indicator"]
 T.check(schema and schema[1], "options schema registered")
 T.eq(schema[1].key, "icon", "the row picks the icon")
-T.eq(schema[1].default, "ball", "the original outline ball is the default")
+T.eq(schema[1].default, "gen2", "the Gen 2 mark is the default")
+T.eq(schema[1].choices[1][2], "gen2", "and leads the row")
 T.eq(#schema[1].choices, 2, "two icons offered")
+-- the released 1.0.0 look is still reachable, which is what the row is
+-- for: the new default changes the mark an upgrading player sees
+T.eq(schema[1].choices[2][2], "ball", "with the 1.0.0 outline still offered")
 
 -- hand-typed pixel art: a short or stray row would rasterize as a
 -- silently clipped icon, so every style is checked against the 8x8 the
@@ -132,10 +136,12 @@ T.eq(table.concat(Indicator.ICONS.ball, "\n"),
 T.check(table.concat(Indicator.ICONS.gen2, "\n")
      ~= table.concat(Indicator.ICONS.ball, "\n"),
   "GEN 2 is a different mark, so the option earns its row")
-T.eq(Indicator.pixels("nonsense"), Indicator.ICONS.ball,
+T.eq(Indicator.pixels("nonsense"), Indicator.ICONS.gen2,
   "an unknown style falls back to the default rather than nothing")
-T.eq(Indicator.pixels(nil), Indicator.ICONS.ball,
+T.eq(Indicator.pixels(nil), Indicator.ICONS.gen2,
   "so does no style at all")
+T.eq(Indicator.pixels("ball"), Indicator.ICONS.ball,
+  "and a named style is still honoured")
 
 run.release()
 T.finish("jj_caught_indicator")

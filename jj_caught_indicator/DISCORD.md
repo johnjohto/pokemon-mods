@@ -4,7 +4,7 @@ Ever weaken a wild pokémon, then check the dex to see if you even need it? No m
 
 :white_check_mark: Icon next to the name = already in your Pokédex
 :x: No icon = new catch, time to get to work
-:art: **New in 1.1.0** — a **CAUGHT ICON** option: keep the open outline ball, or switch to the **GEN 2** mark, filled with a glint
+:art: **New in 1.1.0** — the icon is now the **GEN 2** mark, filled with a glint. A **CAUGHT ICON** option switches back to 1.0.0's open outline if you prefer it
 
 Wild battles only, purely visual, nothing else changes. Install and forget it.
 

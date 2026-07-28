@@ -14,11 +14,14 @@ to weaken it or run.
 
 ## Options
 
-A **CAUGHT ICON** row in the options menu picks the mark: **BALL**
-(default, the open pokeball outline) or **GEN 2** (a filled top with a
-glint at the upper left over an open lower half — the classic red-top
-silhouette in one bit). Both are 8×8 and drawn in the HUD's own ink, so
-either recolors with the rest of the screen.
+A **CAUGHT ICON** row in the options menu picks the mark: **GEN 2**
+(default — a filled top with a glint at the upper left over an open lower
+half, the classic red-top silhouette in one bit) or **BALL** (the open
+pokeball outline that 1.0.0 drew). Both are 8×8 and drawn in the HUD's
+own ink, so either recolors with the rest of the screen.
+
+Upgrading from 1.0.0 changes the mark you see, since that release drew
+the outline unconditionally. Pick **BALL** to keep it.
 
 ## Install
 
