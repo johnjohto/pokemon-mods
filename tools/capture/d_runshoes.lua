@@ -43,21 +43,38 @@ return function(game)
   game.speedOverride = 1
   U.wait(30)
 
-  local function leg(label, withB, shot)
+  local function leg(label, withB, onBike, shot)
     U.teleport(game, "VIRIDIAN_CITY", 19, 3, "down")
+    game.save.onBike = onBike or false
     U.wait(20)
     local p = game.overworld.player
     local from = p.cellY
     local frames, trace = go("down", TILES, withB)
-    U.log(string.format("%s %d tiles (y %d -> %d) in %d frames; first tile %s",
+    U.log(string.format("%-12s %d tiles (y %d -> %d) in %d frames; first tile %s",
       label, TILES, from, p.cellY, frames, trace))
     U.wait(20)
     if shot then U.shot(game, OUT .. "/" .. shot) end
     U.wait(10)
   end
 
-  leg("walked", false, "runshoes_walk.png")
-  leg("ran", true, "runshoes_run.png")
+  -- the option row the bicycle legs below are measuring
+  local function setBike(value)
+    local loader = game.mods
+    loader.modOptions = loader.modOptions or {}
+    loader.modOptions.jj_running_shoes =
+      loader.modOptions.jj_running_shoes or {}
+    loader.modOptions.jj_running_shoes.bike = value
+  end
+
+  leg("walked", false, false, "runshoes_walk.png")
+  leg("ran", true, false, "runshoes_run.png")
+
+  -- the bicycle: untouched at BIKE SPEED VANILLA even with B down, then
+  -- hurried once MATCH RUN hands it the walking multiplier
+  leg("biked", true, true)
+  setBike("match")
+  leg("biked MATCH", true, true, "runshoes_bike.png")
+  setBike(nil)
 
   U.log("running shoes captured")
   love.event.quit()

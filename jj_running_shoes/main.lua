@@ -21,12 +21,19 @@ return function(mod)
       choices = { { "2X", 2 }, { "1.5X", 1.5 }, { "OFF", 1 } } },
     { key = "trigger", label = "RUN BUTTON", type = "choice", default = "hold",
       choices = { { "HOLD B", "hold" }, { "ALWAYS", "always" } } },
+    -- the bicycle is vanilla until asked otherwise: MATCH RUN keeps its
+    -- 2:1 lead over the feet, the numbers set it independently
+    { key = "bike", label = "BIKE SPEED", type = "choice", default = 1,
+      choices = { { "VANILLA", 1 }, { "MATCH RUN", "match" },
+                  { "1.5X", 1.5 }, { "2X", 2 } } },
   })
 
   local function opts()
+    local bike = mod.options:get("bike")
     return {
       speed = tonumber(mod.options:get("speed")) or 2,
       trigger = mod.options:get("trigger") or "hold",
+      bike = bike == "match" and "match" or (tonumber(bike) or 1),
     }
   end
 
@@ -36,15 +43,21 @@ return function(mod)
     frames = nextFn(frames, ctx)
     local o = opts()
     local running = Run.running(ctx, o)
-    -- read by the patch below; set on every step so it can never go stale
-    if ctx.player then ctx.player.jjRunning = running end
+    local p = ctx.player
+    -- read by the patch below; set on every step so they cannot go stale.
+    -- jjRunBase is this mode's unhurried step length, which is what the
+    -- animation clock gets paid in -- 16 on foot, 8 on the bicycle.
+    if p then
+      p.jjRunning = running
+      p.jjRunBase = frames
+    end
     if not running then return frames end
     return Run.frames(frames, ctx, o)
   end)
 
-  -- The engine advances animClock once per frame while moving.  A running
-  -- step is short, so it would land mid-cycle and read as a walk played
-  -- at half length; the extra ticks make the legs keep pace with the feet.
+  -- The engine advances animClock once per frame while moving.  A hurried
+  -- step is short, so it would land mid-cycle and read as a slide; the
+  -- extra ticks make the legs keep pace with the feet.
   local vanillaUpdate = Player.update
   Player.update = function(self, ...)
     -- captured before the vanilla step: it increments progress itself
@@ -52,7 +65,7 @@ return function(mod)
     local progress = stepLen and (self.progress or 0)
     local landed = vanillaUpdate(self, ...)
     if progress then
-      local extra = Run.animTicks(progress + 1, stepLen) - 1
+      local extra = Run.animTicks(progress + 1, stepLen, self.jjRunBase) - 1
       if extra > 0 then self.animClock = (self.animClock or 0) + extra end
     end
     if landed then self.jjRunning = false end
