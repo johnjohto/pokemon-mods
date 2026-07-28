@@ -1,0 +1,9 @@
+{
+  "id": "jj_caught_indicator",
+  "name": "Caught Indicator",
+  "version": "1.0.0",
+  "entry": "main.lua",
+  "category": "UI",
+  "permissions": ["engine_internals"],
+  "description": "Shows a pokeball icon next to a wild pokemon's name in battle if you already caught one, like the later generations."
+}

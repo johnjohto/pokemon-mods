@@ -38,3 +38,5 @@ the zip as the release asset).
 - `jj_alternate_start` — begin a new game in any town, tutorial-free.
 - `jj_hm_field_unlock` — field-use HMs without teaching them.
 - `jj_auto_field_moves` — field moves fire on contact, no menus.
+- `jj_exp_bar` — Gen 2-style EXP bar under the player HP bar in battle.
+- `jj_caught_indicator` — pokeball icon next to a wild pokémon you've already caught.

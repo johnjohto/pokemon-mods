@@ -15,10 +15,17 @@ starts.
 - **jj_auto_field_moves** — field moves fire on contact: water surfs,
   cuttable tiles cut, boulders activate STRENGTH, dark caves FLASH.
   FLY stays menu-only; composes with jj_hm_field_unlock automatically.
+- **jj_exp_bar** — Gen 2-style EXP bar under the player HP bar in battle:
+  fills on exp gain, wraps through level-ups, three fill styles.
+- **jj_caught_indicator** — Gen 2-style pokeball icon next to a wild
+  enemy's name when its species is already owned in the dex.
 
 ## Next
 
-- **More QoL mods** — to be grilled out before building.
+- **More QoL mods** — grilled candidates: randomizer, overworld spawns,
+  more informative FIGHT menu, bag/item storage sort, SELECT hotkey for
+  key items. All feasible against the current upstream hooks except the
+  SELECT hotkey, which would need a runtime patch or an upstream PR.
 
 ## Later
 
