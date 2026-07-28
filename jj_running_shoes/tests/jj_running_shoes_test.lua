@@ -89,6 +89,14 @@ local SURF2 = { speed = 2, trigger = "hold", surf = 2 }
 T.eq(Run.multiplier(SURFING, SURF2), 2, "SURF SPEED hurries the water")
 T.check(Run.running(SURFING, SURF2), "so B speeds up a crossing")
 T.eq(Run.frames(16, SURFING, SURF2), 8, "halving the step, as on foot")
+
+-- surfing answers to the RUN BUTTON row exactly like the feet do: B is
+-- what turns it on, and releasing gives the vanilla crossing straight back
+local SURF_RELEASED = ctx({ surfing = true, input = input(false) })
+T.check(not Run.running(SURF_RELEASED, SURF2), "B released surfs at vanilla")
+T.eq(Run.frames(16, SURF_RELEASED, SURF2), 16, "at the vanilla 16 frames")
+T.check(Run.running(SURF_RELEASED, { speed = 2, trigger = "always", surf = 2 }),
+  "and ALWAYS hurries the water with no button, like it does the feet")
 T.eq(Run.multiplier(ctx({ onBike = true }), SURF2), 1,
   "and it never leaks onto the bicycle")
 
@@ -158,10 +166,11 @@ Collision.canMove = function() return true end
 
 -- Take one tile; returns the frames it took, the ticks the animation
 -- clock gained, and every walk phase seen along the way.
-local function step(holdB, onBike)
+local function step(holdB, onBike, surfing)
   Game.input = input(holdB)
   Game.save = { onBike = onBike or false }
   local p = Player.new(Data, 5, 5, "down")
+  p.surfing = surfing or false
   T.eq(p:tryMove("down", {}, nil), "moved", "the step starts")
   local clock0, frames, phases = p.animClock or 0, 0, {}
   repeat
@@ -194,6 +203,18 @@ local fastFrames, fastTicks = step(true, true)
 T.eq(fastFrames, 4, "BIKE SPEED 2X halves the bicycle's step")
 T.eq(fastTicks, 8, "with vanilla's half cycle per tile, pedalled twice as fast")
 run.loader.modOptions["jj_running_shoes"] = nil
+
+-- surfing, driven through the real chain: the same B that runs on land
+-- is what hurries the water, and letting go hands the crossing straight
+-- back to vanilla
+run.loader.modOptions["jj_running_shoes"] = { surf = 2 }
+local surfHeld = step(true, false, true)
+T.eq(surfHeld, 8, "B held surfs at 2X once SURF SPEED asks for it")
+local surfFree = step(false, false, true)
+T.eq(surfFree, 16, "and releasing it is the vanilla crossing again")
+run.loader.modOptions["jj_running_shoes"] = nil
+local surfDefault = step(true, false, true)
+T.eq(surfDefault, 16, "with the row at VANILLA, B does nothing on water")
 
 Collision.canMove = vanillaCanMove
 Game.input, Game.save = nil, nil
