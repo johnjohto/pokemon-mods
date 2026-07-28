@@ -12,7 +12,7 @@ return function(mod)
   mod.options:define({
     { key = "icon", label = "CAUGHT ICON", type = "choice",
       default = Indicator.DEFAULT_ICON,
-      choices = { { "GEN 2", "gen2" }, { "BALL", "ball" } } },
+      choices = { { "GEN 2", "gen2" }, { "GEN 1", "gen1" } } },
   })
 
   local game
@@ -45,19 +45,26 @@ return function(mod)
     -- a pushed screen (party, bag, a modal TextBox) draws over the HUD;
     -- the icon belongs to the battle scene only
     if game.stack and game.stack:top() ~= battle then return end
-    -- the same offsets BattleState applies to the scene and to the enemy
-    -- HUD block, so the icon shakes with the name it sits next to
-    local fx = battle.fx
-    local sx = (fx and fx.shakeX) or 0
-    local sy = (fx and fx.shakeY) or 0
-    if sx == 0 and sy == 0 and fx and fx.shake and fx.shake > 0 then
-      sx = (battle.frame or 0) % 4 < 2 and 2 or -2
+    -- the wide layout draws its status boxes outside the shaken picture
+    -- regions, so only the classic HUD takes the shake offsets; matching
+    -- that keeps the icon still against a foe panel that is itself still
+    local wide = Indicator.isWide(battle)
+    local sx, sy = 0, 0
+    if not wide then
+      -- the same offsets BattleState applies to the scene and to the enemy
+      -- HUD block, so the icon shakes with the name it sits next to
+      local fx = battle.fx
+      sx = (fx and fx.shakeX) or 0
+      sy = (fx and fx.shakeY) or 0
+      if sx == 0 and sy == 0 and fx and fx.shake and fx.shake > 0 then
+        sx = (battle.frame or 0) % 4 < 2 and 2 or -2
+      end
+      sx = sx + ((fx and fx.hudShakeX) or 0)
     end
-    local hx = (fx and fx.hudShakeX) or 0
-    local x, y = Indicator.placement()
+    local x, y = Indicator.placement(wide)
     local g = love.graphics
     g.push()
-    g.translate(sx + hx, sy)
+    g.translate(sx, sy)
     g.setColor(1, 1, 1, 1)
     g.draw(iconImage(mod.options:get("icon")), x, y)
     g.pop()

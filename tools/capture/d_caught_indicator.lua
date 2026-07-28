@@ -43,9 +43,9 @@ return function(game)
   loader.modOptions = loader.modOptions or {}
   loader.modOptions.jj_caught_indicator =
     loader.modOptions.jj_caught_indicator or {}
-  loader.modOptions.jj_caught_indicator.icon = "ball"
+  loader.modOptions.jj_caught_indicator.icon = "gen1"
   U.wait(20)
-  U.shot(game, OUT .. "/caught_hud_ball.png")
+  U.shot(game, OUT .. "/caught_hud_gen1.png")
 
   game.speedOverride = 1
   U.log("caught indicator captured (both icons); idling at the battle menu")

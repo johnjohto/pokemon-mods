@@ -21,6 +21,20 @@ the HP bar's green/yellow/red thresholds). **EXP BAR POS** picks the
 height: **BORDER** (default, rides the HUD's bottom border row) or
 **GEN 2** (one pixel higher).
 
+## Battle layouts
+
+Both of the engine's battle layouts are supported. In the classic
+160×144 one the bar rides the player HUD's underline row, as it always
+has. In the widescreen layout (**OPTION → BATTLE LAYOUT → WIDE**, added
+in gen1recomp v0.1.31) the player's status is a box on the lower right
+whose three interior rows are all taken — name, HP bar, HP numbers — so
+the bar sits just inside that box's bottom frame row, spanning its inner
+width. **EXP BAR POS** still shifts it a pixel either way.
+
+Older engines are unaffected: the mod asks whether the battle is wide
+before assuming it can be, so it keeps working on versions that have no
+widescreen layout at all.
+
 ## Install
 
 Copy this folder into the game's `mods/` directory and enable it in the

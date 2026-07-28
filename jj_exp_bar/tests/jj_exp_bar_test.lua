@@ -135,4 +135,42 @@ Runtime.call("battle.overlay", function() end, b0)
 T.eq(live.displayed, before, "a pushed screen hides the bar")
 topState = b0
 
+-- ------- layout geometry (v0.1.31 BATTLE LAYOUT -> WIDE)
+
+-- isWide is guarded: v0.1.29 and earlier have no wideLayout at all, and
+-- an engine without it is never wide
+T.check(not ExpBar.isWide(nil), "no battle is not wide")
+T.check(not ExpBar.isWide({}), "an engine without wideLayout is not wide")
+T.check(not ExpBar.isWide({ wideLayout = function() return false end }),
+  "the classic layout reports itself")
+T.check(ExpBar.isWide({ wideLayout = function() return true end }),
+  "and the wide one does too")
+
+-- classic is exactly what shipped in 1.0.0
+local cx, cw, cy = ExpBar.geometry(false, 90)
+T.eq(cx, 80, "classic bar starts at the left corner bracket")
+T.eq(cw, 67, "classic bar is 67 wide")
+T.eq(cy, 90, "classic BORDER rides the underline row")
+T.eq(select(3, ExpBar.geometry(false, 89)), 89, "classic GEN 2 sits a pixel up")
+
+-- wide: inside the player status box's bottom frame row, spanning the
+-- inner width between the vertical borders
+local wx, ww, wy = ExpBar.geometry(true, 90)
+T.eq(wx, 192, "wide bar starts inside the box's left border")
+T.eq(wx + ww, 296, "and ends inside its right border")
+T.check(wy < 88 + 8, "wide bar is within the bottom frame row band")
+T.check(wy > 80, "and below the HP numbers row")
+
+-- the BAR POS option is stored in classic pixels, so it has to carry
+-- across as an offset rather than be read as an absolute
+T.eq(select(3, ExpBar.geometry(true, 89)), wy - 1,
+  "GEN 2 still means one pixel higher in the wide layout")
+T.eq(select(3, ExpBar.geometry(true, nil)), wy,
+  "and an unset option is the default row")
+
+-- the two layouts must not share a spot, or the fix did nothing
+T.check(wx ~= cx or wy ~= cy, "the layouts draw in different places")
+-- wide must clear the classic surface entirely: 160 wide is all there is
+T.check(wx >= 160, "the wide bar is off the classic surface, as intended")
+
 T.finish("jj_exp_bar")

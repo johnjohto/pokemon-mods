@@ -34,13 +34,11 @@ return function(mod)
                     e.gained or 0, e.levels)
   end)
 
-  -- geometry: the bar rides the HUD box's bottom border row, flush to the
-  -- corner brackets (the left triangle ends at x=80; the right corner's
-  -- foot ends at x=148, minus one by request).  One pixel tall, fill
-  -- only -- a white track erases the box border and reads as a glitch.
-  -- Like Gen 2 it fills from right to left.  The Y option rides the
-  -- border row or sits one pixel above it (Gen 2's spot)
-  local X, W, H = 80, 67, 1
+  -- geometry lives in expbar.lua, which knows both battle layouts; here
+  -- only the height, which neither changes.  One pixel tall, fill only --
+  -- a white track erases the box border and reads as a glitch.  Like Gen 2
+  -- it fills from right to left.
+  local H = 1
 
   -- fill colors; the HP MATCH thresholds and palette are the engine's own
   -- GetHealthBarColor cutoffs (>= 27/48 green, >= 10/48 yellow, else red)
@@ -66,26 +64,34 @@ return function(mod)
     local mon = battle.player.mon
     bar:sync(battle.data or game.data, mon)
     bar:tick()
+    -- The wide layout keeps every menu box on tile row 13 and below, well
+    -- clear of the player status box, and draws its HUDs outside the
+    -- shaken picture regions.  So the two classic dodges below -- and the
+    -- shake -- are classic's alone.
+    local wide = ExpBar.isWide(battle)
     -- Mimic's copy menu box (0,7) 16x6 covers the bar's row almost
     -- entirely; the bar hides rather than drawing across it
-    if battle.phase == "mimicSelect" then return end
-    -- the same window-shake offsets BattleState:draw applies to the
-    -- scene, so the bar shakes with the rest of the UI
-    local fx = battle.fx
-    local sx = (fx and fx.shakeX) or 0
-    local sy = (fx and fx.shakeY) or 0
-    if sx == 0 and sy == 0 and fx and fx.shake and fx.shake > 0 then
-      sx = (battle.frame or 0) % 4 < 2 and 2 or -2
+    if not wide and battle.phase == "mimicSelect" then return end
+    local sx, sy = 0, 0
+    if not wide then
+      -- the same window-shake offsets BattleState:draw applies to the
+      -- scene, so the bar shakes with the rest of the UI
+      local fx = battle.fx
+      sx = (fx and fx.shakeX) or 0
+      sy = (fx and fx.shakeY) or 0
+      if sx == 0 and sy == 0 and fx and fx.shake and fx.shake > 0 then
+        sx = (battle.frame or 0) % 4 < 2 and 2 or -2
+      end
     end
     local g = love.graphics
     local style = STYLES[mod.options:get("bar_style") or "ink"] or STYLES.ink
     local r, gr, b = style(mon)
-    local y = mod.options:get("bar_y") or 90
+    local X, W, y = ExpBar.geometry(wide, mod.options:get("bar_y"))
     -- Gen 2 fills right to left: the fill is anchored at the right edge.
     -- During move selection the TYPE/PP panel box (0,8) 11x5 owns x<88 on
     -- this row; clip the fill there instead of drawing across it
     local left = X + W - math.floor(W * bar.displayed + 0.5)
-    if battle.phase == "moveSelect" and left < 88 then left = 88 end
+    if not wide and battle.phase == "moveSelect" and left < 88 then left = 88 end
     local width = X + W - left
     g.push()
     g.translate(sx, sy)

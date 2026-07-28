@@ -89,4 +89,35 @@ function ExpBar:sync(data, mon)
   self.pending = nil
 end
 
+-- ------- layout geometry
+
+-- Classic (160x144): the player HUD's underline row, flush to the corner
+-- brackets -- the left triangle ends at x=80, the right corner's foot at
+-- x=148, minus one by request.
+ExpBar.CLASSIC = { x = 80, w = 67, y = 90 }
+
+-- Wide (304x144, upstream v0.1.31's BATTLE LAYOUT -> WIDE): the player's
+-- status is a 15x5 box at (184,56), and all three of its interior rows are
+-- spoken for -- name at y=64, HP bar at y=72, HP numbers at y=80. So the
+-- bar rides the inside of the bottom frame row (the band at y=88..96),
+-- spanning the box's inner width between the vertical border columns.
+ExpBar.WIDE = { x = 192, w = 104, y = 88 }
+
+-- The BAR POS option is stored in classic pixels, so carry its offset
+-- across rather than reading it as an absolute: GEN 2 keeps meaning "one
+-- pixel higher" in either layout.
+function ExpBar.geometry(wide, yOption)
+  local g = wide and ExpBar.WIDE or ExpBar.CLASSIC
+  local nudge = (tonumber(yOption) or ExpBar.CLASSIC.y) - ExpBar.CLASSIC.y
+  return g.x, g.w, g.y + nudge
+end
+
+-- Whether this battle is drawing the wide layout. Guarded rather than
+-- called outright: wideLayout is v0.1.31+, and on an older engine there
+-- is no wide layout to be in.
+function ExpBar.isWide(battle)
+  if not battle or type(battle.wideLayout) ~= "function" then return false end
+  return battle:wideLayout() == true
+end
+
 return ExpBar

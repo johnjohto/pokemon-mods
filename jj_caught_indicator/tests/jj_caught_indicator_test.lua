@@ -91,10 +91,28 @@ T.check(not Indicator.shouldShow(wildBattle("PIDGEY"), { save = {} }),
 T.check(not Indicator.shouldShow(wildBattle("PIDGEY"), nil),
   "no icon without a game")
 
--- placement: fixed spot below the name, right above the HP-bar bracket
-local x, y = Indicator.placement()
+-- placement, classic: fixed spot below the name, above the HP-bar bracket
+local x, y = Indicator.placement(false)
 T.eq(x, 8, "icon sits one tile in, under the name")
 T.eq(y, 8, "icon sits on the second row, above the HP bracket")
+
+-- placement, wide (v0.1.31 BATTLE LAYOUT -> WIDE): the foe panel draws
+-- its NAME at (8,8), so the classic spot printed the mark over the name's
+-- first letter. Right of the HP bar instead, clear of both the status box
+-- (ends x=128) and the enemy picture region (starts x=160).
+local wx, wy = Indicator.placement(true)
+T.eq(wx, 128, "wide icon clears the foe status box")
+T.check(wx + 8 <= 160, "and stays out of the enemy picture region")
+T.eq(wy, 16, "wide icon rides the HP bar's own row")
+T.check(wx ~= x or wy ~= y, "the two layouts do not share a spot")
+
+-- isWide is guarded: v0.1.29 and earlier have no wideLayout at all
+T.check(not Indicator.isWide(nil), "no battle is not wide")
+T.check(not Indicator.isWide({}), "an engine without wideLayout is not wide")
+T.check(not Indicator.isWide({ wideLayout = function() return false end }),
+  "the classic layout reports itself")
+T.check(Indicator.isWide({ wideLayout = function() return true end }),
+  "and the wide one does too")
 
 -- ------- the icon styles
 
@@ -106,7 +124,7 @@ T.eq(schema[1].choices[1][2], "gen2", "and leads the row")
 T.eq(#schema[1].choices, 2, "two icons offered")
 -- the released 1.0.0 look is still reachable, which is what the row is
 -- for: the new default changes the mark an upgrading player sees
-T.eq(schema[1].choices[2][2], "ball", "with the 1.0.0 outline still offered")
+T.eq(schema[1].choices[2][2], "gen1", "with the outline mark still offered")
 
 -- hand-typed pixel art: a short or stray row would rasterize as a
 -- silently clipped icon, so every style is checked against the 8x8 the
@@ -126,21 +144,18 @@ for style, rows in pairs(Indicator.ICONS) do
   T.check(ink > 0, style .. " actually draws something")
 end
 
--- BALL shipped in 1.0.0, so its art is pinned: changing it would alter
--- what an existing player already sees. GEN 2 is still being drawn, so
--- it is held to what actually matters -- that picking the row changes
--- the mark -- and the 8x8 checks above catch a typo either way.
-T.eq(table.concat(Indicator.ICONS.ball, "\n"),
-  "..XXXX..\n.X....X.\nX......X\nXXXXXXXX\nX......X\n.X....X.\n..XXXX..\n........",
-  "BALL is unchanged from the released art")
+-- Both marks are still being drawn, so neither art is pinned: an exact
+-- copy here is a second place to edit, not coverage. What has to hold is
+-- that the row offers two genuinely different marks -- the 8x8 shape and
+-- character checks above catch the typo a redraw might introduce.
 T.check(table.concat(Indicator.ICONS.gen2, "\n")
-     ~= table.concat(Indicator.ICONS.ball, "\n"),
-  "GEN 2 is a different mark, so the option earns its row")
+     ~= table.concat(Indicator.ICONS.gen1, "\n"),
+  "the two marks differ, so the option earns its row")
 T.eq(Indicator.pixels("nonsense"), Indicator.ICONS.gen2,
   "an unknown style falls back to the default rather than nothing")
 T.eq(Indicator.pixels(nil), Indicator.ICONS.gen2,
   "so does no style at all")
-T.eq(Indicator.pixels("ball"), Indicator.ICONS.ball,
+T.eq(Indicator.pixels("gen1"), Indicator.ICONS.gen1,
   "and a named style is still honoured")
 
 run.release()

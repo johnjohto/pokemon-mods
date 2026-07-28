@@ -16,12 +16,25 @@ to weaken it or run.
 
 A **CAUGHT ICON** row in the options menu picks the mark: **GEN 2**
 (default — a filled top with a glint at the upper left over an open lower
-half, the classic red-top silhouette in one bit) or **BALL** (the open
-pokeball outline that 1.0.0 drew). Both are 8×8 and drawn in the HUD's
-own ink, so either recolors with the rest of the screen.
+half, the classic red-top silhouette in one bit) or **GEN 1** (a small
+open ball, all outline). Both are 8×8 and drawn in the HUD's own ink, so
+either recolors with the rest of the screen.
 
 Upgrading from 1.0.0 changes the mark you see, since that release drew
-the outline unconditionally. Pick **BALL** to keep it.
+one icon unconditionally and neither option is a pixel match for it.
+
+## Battle layouts
+
+Both of the engine's battle layouts are supported. In the classic 160×144
+one the mark sits under the foe's name. In the widescreen layout
+(**OPTION → BATTLE LAYOUT → WIDE**, added in gen1recomp v0.1.31) the foe's
+status box draws its *name* exactly where that mark used to go, so the
+icon moves to the immediate right of the foe's HP bar, clear of the box
+and of the enemy's picture.
+
+Older engines are unaffected: the mod asks whether the battle is wide
+before assuming it can be, so it keeps working on versions that have no
+widescreen layout at all.
 
 ## Install
 

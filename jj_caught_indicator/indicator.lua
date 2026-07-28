@@ -22,11 +22,31 @@ function Indicator.shouldShow(battle, game)
      and dex.owned[enemy.mon.species] == true
 end
 
--- The icon sits on the HUD's second row at tile (1,1): below the name,
--- directly above the vertical HP-bar bracket the engine draws at tile
--- (1,2). Fixed spot; the name's own padding never moves it.
-function Indicator.placement()
+-- Where the icon lands, per battle layout.
+--
+-- Classic (160x144): the HUD's second row at tile (1,1) -- below the
+-- name, directly above the vertical HP-bar bracket the engine draws at
+-- tile (1,2). The name's own padding never moves it.
+--
+-- Wide (304x144, upstream v0.1.31's BATTLE LAYOUT -> WIDE): the foe's
+-- status is a 16x4 box at the origin whose *name* row is drawn at (8,8) --
+-- exactly the classic icon spot, so the old fixed placement printed the
+-- mark over the name's first letter. The row below is the HP bar, which
+-- with its end cap fills out to the box's inner edge (x=120). So the icon
+-- goes immediately right of the bar, on its own row, in the gap between
+-- the status box (ends at x=128) and the enemy picture region (starts at
+-- x=160).
+function Indicator.placement(wide)
+  if wide then return 128, 16 end
   return 8, 8
+end
+
+-- Whether this battle is drawing the wide layout. Guarded rather than
+-- called outright: wideLayout is v0.1.31+, and on an older engine there
+-- is no wide layout to be in.
+function Indicator.isWide(battle)
+  if not battle or type(battle.wideLayout) ~= "function" then return false end
+  return battle:wideLayout() == true
 end
 
 -- The icons, as pixel rows; X is ink, and every one is 8x8 to fill the
@@ -34,15 +54,15 @@ end
 -- of the enemy HUD, so the zone pass recolors them with everything else.
 -- Art lives here rather than beside the draw so the tests can check it.
 Indicator.ICONS = {
-  -- the original: an open pokeball outline
-  ball = {
-    "..XXXX..",
+  -- the Gen 1 mark: a small open ball, all outline
+  gen1 = {
+    "........",
+    "...XX...",
+    "..X.XX..",
+    ".XXXXXX.",
     ".X....X.",
-    "X......X",
-    "XXXXXXXX",
-    "X......X",
-    ".X....X.",
-    "..XXXX..",
+    "..X..X..",
+    "...XX...",
     "........",
   },
   -- the Gen 2 mark: a filled top with a glint at the upper left, the
