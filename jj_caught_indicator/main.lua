@@ -2,42 +2,41 @@
 -- enemy's name when its species is already registered as caught in the
 -- dex. Nothing else changes: no text, no sounds, catching works as before.
 --
--- Deliberately thin: battle.overlay is a draw-only hook and every decision
--- lives in indicator.lua, a pure module the headless tests drive directly.
--- The mod only reads battle/dex state and draws an 8x8 tile.
+-- Deliberately thin: battle.overlay is a draw-only hook, and the decision
+-- and the icon art both live in indicator.lua, a pure module the headless
+-- tests drive directly. The mod only reads battle/dex state, rasterizes
+-- the chosen 8x8 tile, and draws it.
 return function(mod)
   local Indicator = require("mods.jj_caught_indicator.indicator")
+
+  mod.options:define({
+    { key = "icon", label = "CAUGHT ICON", type = "choice",
+      default = Indicator.DEFAULT_ICON,
+      choices = { { "BALL", "ball" }, { "SOLID", "solid" } } },
+  })
 
   local game
   mod.events:on("game.ready", function(e) game = e.game end)
 
-  -- the icon as pixel rows; X is ink. Drawn in black like the rest of the
-  -- enemy HUD, so the zone pass recolors it with everything else
-  local PIXELS = {
-    "..XXXX..",
-    ".X....X.",
-    "X......X",
-    "XXXXXXXX",
-    "X......X",
-    ".X....X.",
-    "..XXXX..",
-    "........",
-  }
-
-  local icon -- built lazily: love.graphics only exists once a frame draws
-  local function iconImage()
-    if icon then return icon end
+  -- built lazily and kept per style: love.graphics only exists once a
+  -- frame draws, and caching both means switching the option mid-battle
+  -- costs nothing
+  local cache = {}
+  local function iconImage(style)
+    local img = cache[style]
+    if img then return img end
     local data = love.image.newImageData(8, 8)
-    for y, row in ipairs(PIXELS) do
+    for y, row in ipairs(Indicator.pixels(style)) do
       for x = 1, 8 do
         if row:sub(x, x) == "X" then
           data:setPixel(x - 1, y - 1, 0, 0, 0, 1)
         end
       end
     end
-    icon = love.graphics.newImage(data)
-    icon:setFilter("nearest", "nearest")
-    return icon
+    img = love.graphics.newImage(data)
+    img:setFilter("nearest", "nearest")
+    cache[style] = img
+    return img
   end
 
   mod.hooks:wrap("battle.overlay", function(nextFn, battle)
@@ -60,7 +59,7 @@ return function(mod)
     g.push()
     g.translate(sx + hx, sy)
     g.setColor(1, 1, 1, 1)
-    g.draw(iconImage(), x, y)
+    g.draw(iconImage(mod.options:get("icon")), x, y)
     g.pop()
   end)
 end

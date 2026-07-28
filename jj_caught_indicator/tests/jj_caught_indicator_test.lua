@@ -96,5 +96,40 @@ local x, y = Indicator.placement()
 T.eq(x, 8, "icon sits one tile in, under the name")
 T.eq(y, 8, "icon sits on the second row, above the HP bracket")
 
+-- ------- the icon styles
+
+local schema = run.loader.optionSchemas["jj_caught_indicator"]
+T.check(schema and schema[1], "options schema registered")
+T.eq(schema[1].key, "icon", "the row picks the icon")
+T.eq(schema[1].default, "ball", "the original outline ball is the default")
+T.eq(#schema[1].choices, 2, "two icons offered")
+
+-- hand-typed pixel art: a short or stray row would rasterize as a
+-- silently clipped icon, so every style is checked against the 8x8 the
+-- draw allocates
+for style, rows in pairs(Indicator.ICONS) do
+  T.eq(#rows, 8, style .. " is 8 rows tall")
+  local ok, ink = true, 0
+  for _, row in ipairs(rows) do
+    if #row ~= 8 then ok = false end
+    for i = 1, #row do
+      local c = row:sub(i, i)
+      if c == "X" then ink = ink + 1
+      elseif c ~= "." then ok = false end
+    end
+  end
+  T.check(ok, style .. " is 8 columns of . and X on every row")
+  T.check(ink > 0, style .. " actually draws something")
+end
+
+T.eq(Indicator.pixels("solid")[3], "XX.XXXXX",
+  "SOLID keeps its glint on the third row")
+T.eq(Indicator.pixels("ball")[1], "..XXXX..",
+  "BALL is unchanged from the released art")
+T.eq(Indicator.pixels("nonsense"), Indicator.ICONS.ball,
+  "an unknown style falls back to the default rather than nothing")
+T.eq(Indicator.pixels(nil), Indicator.ICONS.ball,
+  "so does no style at all")
+
 run.release()
 T.finish("jj_caught_indicator")

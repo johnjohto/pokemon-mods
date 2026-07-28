@@ -12,6 +12,14 @@ to weaken it or run.
   sits next to.
 - Purely visual: catching, the dex, and everything else play as vanilla.
 
+## Options
+
+A **CAUGHT ICON** row in the options menu picks the mark: **BALL**
+(default, the open pokeball outline) or **SOLID** (a filled top with a
+glint at the upper left — the classic red-top silhouette in one bit,
+riding a pixel lower). Both are 8×8 and drawn in the HUD's own ink, so
+either recolors with the rest of the screen.
+
 ## Install
 
 Copy this folder into the game's `mods/` directory and enable it in the

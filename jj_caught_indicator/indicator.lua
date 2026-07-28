@@ -29,4 +29,42 @@ function Indicator.placement()
   return 8, 8
 end
 
+-- The icons, as pixel rows; X is ink, and every one is 8x8 to fill the
+-- tile placement() picks. main.lua rasterizes them in black like the rest
+-- of the enemy HUD, so the zone pass recolors them with everything else.
+-- Art lives here rather than beside the draw so the tests can check it.
+Indicator.ICONS = {
+  -- the original: an open pokeball outline
+  ball = {
+    "..XXXX..",
+    ".X....X.",
+    "X......X",
+    "XXXXXXXX",
+    "X......X",
+    ".X....X.",
+    "..XXXX..",
+    "........",
+  },
+  -- filled top with a glint at the upper left, the classic red-top
+  -- silhouette in one bit; it rides a pixel lower than the outline ball
+  solid = {
+    "........",
+    "..XXXX..",
+    "XX.XXXXX",
+    "XXXXXXXX",
+    "X......X",
+    "X......X",
+    ".XXXXXX.",
+    "........",
+  },
+}
+
+Indicator.DEFAULT_ICON = "ball"
+
+-- An unknown style is answered with the default rather than nothing: a
+-- stale saved option must never cost the player the icon entirely.
+function Indicator.pixels(style)
+  return Indicator.ICONS[style] or Indicator.ICONS[Indicator.DEFAULT_ICON]
+end
+
 return Indicator
