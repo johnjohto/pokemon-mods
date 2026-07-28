@@ -20,7 +20,8 @@ return function(mod)
     { key = "speed", label = "RUN SPEED", type = "choice", default = 2,
       choices = { { "2X", 2 }, { "1.5X", 1.5 }, { "OFF", 1 } } },
     { key = "trigger", label = "RUN BUTTON", type = "choice", default = "hold",
-      choices = { { "HOLD B", "hold" }, { "ALWAYS", "always" } } },
+      choices = { { "HOLD B", "hold" }, { "TOGGLE", "toggle" },
+                  { "ALWAYS", "always" } } },
     -- the bicycle is vanilla until asked otherwise: MATCH RUN keeps its
     -- 2:1 lead over the feet, the numbers set it independently
     { key = "bike", label = "BIKE SPEED", type = "choice", default = 1,
@@ -40,12 +41,19 @@ return function(mod)
     return v == "match" and "match" or (tonumber(v) or 1)
   end
 
+  -- TOGGLE's latch.  Deliberately not saved: a run state that survived a
+  -- reload would have the player moving at double speed with no memory of
+  -- having asked for it.
+  local toggled = false
+  mod.exports.toggled = function() return toggled end
+
   local function opts()
     return {
       speed = tonumber(mod.options:get("speed")) or 2,
       trigger = mod.options:get("trigger") or "hold",
       bike = choice("bike"),
       surf = choice("surf"),
+      toggled = toggled,
     }
   end
 
@@ -70,8 +78,19 @@ return function(mod)
   -- The engine advances animClock once per frame while moving.  A hurried
   -- step is short, so it would land mid-cycle and read as a slide; the
   -- extra ticks make the legs keep pace with the feet.
+  local Game = require("src.core.Game")
   local vanillaUpdate = Player.update
   Player.update = function(self, ...)
+    -- TOGGLE flips here rather than in the speed hook, which only fires on
+    -- a step that actually starts -- a tap while standing still has to
+    -- count.  StateStack:update only ticks the top state, so this runs in
+    -- the free-roam overworld alone: the B that backs out of a menu or a
+    -- battle never reaches the latch.
+    if mod.options:get("trigger") == "toggle"
+       and Run.togglePressed(Game.input) then
+      toggled = not toggled
+      mod.log:info("run toggled %s", toggled and "on" or "off")
+    end
     -- captured before the vanilla step: it increments progress itself
     local stepLen = self.jjRunning and self.moving and self.stepFramesCur
     local progress = stepLen and (self.progress or 0)

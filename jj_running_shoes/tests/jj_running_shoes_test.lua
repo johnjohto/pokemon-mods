@@ -26,6 +26,8 @@ T.eq(schema[1].key, "speed", "the first row is the run speed")
 T.eq(schema[1].default, 2, "2X is the default run speed")
 T.eq(schema[2].key, "trigger", "the second row is the trigger")
 T.eq(schema[2].default, "hold", "HOLD B is the default trigger")
+T.eq(#schema[2].choices, 3, "three triggers offered")
+T.eq(schema[2].choices[2][2], "toggle", "with TOGGLE between hold and always")
 T.eq(schema[3].key, "bike", "the third row is the bicycle")
 T.eq(schema[3].default, 1, "the bicycle is vanilla until asked otherwise")
 T.eq(schema[4].key, "surf", "the fourth row is surfing")
@@ -52,6 +54,28 @@ T.check(not Run.running(ctx(), { speed = 1, trigger = "hold" }),
   "OFF never runs")
 T.check(Run.running(ctx({ input = input(false) }),
   { speed = 2, trigger = "always" }), "ALWAYS runs with no button")
+
+-- TOGGLE reads the latch, never the button: the press that flips it is
+-- an edge, and an edge is gone by the time the next step asks
+local TOGGLE = { speed = 2, trigger = "toggle" }
+T.check(not Run.running(ctx(), TOGGLE),
+  "TOGGLE walks while the latch is off, even with B held")
+TOGGLE.toggled = true
+T.check(Run.running(ctx({ input = input(false) }), TOGGLE),
+  "and runs while it is on, with B released")
+T.check(not Run.running(ctx({ onBike = true }), TOGGLE),
+  "the latch still respects a vanilla BIKE SPEED")
+T.check(Run.running(ctx({ onBike = true }),
+  { speed = 2, trigger = "toggle", toggled = true, bike = 2 }),
+  "and hurries the bicycle once that row asks")
+
+-- the edge reader is guarded like isDown is
+T.check(Run.togglePressed({ wasPressed = function(_, b) return b == "b" end }),
+  "togglePressed sees B's rising edge")
+T.check(not Run.togglePressed({ wasPressed = function() return false end }),
+  "and stays quiet otherwise")
+T.check(not Run.togglePressed(nil), "no input source never toggles")
+T.check(not Run.togglePressed({}), "nor one without wasPressed")
 -- spelled out rather than overridden: a nil in the override table is no
 -- key at all, so this case can only be written as its own ctx
 T.check(not Run.running({ onBike = false, surfing = false }, HOLD),
@@ -202,6 +226,31 @@ run.loader.modOptions["jj_running_shoes"] = { bike = 2 }
 local fastFrames, fastTicks = step(true, true)
 T.eq(fastFrames, 4, "BIKE SPEED 2X halves the bicycle's step")
 T.eq(fastTicks, 8, "with vanilla's half cycle per tile, pedalled twice as fast")
+run.loader.modOptions["jj_running_shoes"] = nil
+
+-- TOGGLE, through the real patch: a tap while standing still flips the
+-- latch, and the next step runs with B released.  Player:update is where
+-- the flip lives precisely so a tap that starts no step still counts.
+run.loader.modOptions["jj_running_shoes"] = { trigger = "toggle" }
+local function tapB(times)
+  local fired = 0
+  Game.input = {
+    isDown = function() return false end,
+    wasPressed = function(_, b)
+      if b ~= "b" or fired >= times then return false end
+      fired = fired + 1
+      return true
+    end,
+  }
+  local idle = Player.new(Data, 5, 5, "down")
+  Game.save = { onBike = false }
+  for _ = 1, times do idle:update() end   -- standing still: no step at all
+end
+
+tapB(1)
+T.eq(step(false, false), 8, "one tap latches running, with B released")
+tapB(1)
+T.eq(step(false, false), 16, "a second tap latches it back off")
 run.loader.modOptions["jj_running_shoes"] = nil
 
 -- surfing, driven through the real chain: the same B that runs on land

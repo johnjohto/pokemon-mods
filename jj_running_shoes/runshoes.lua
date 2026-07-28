@@ -29,11 +29,23 @@ end
 -- Whether to hurry this step.  Every mode answers to the same trigger as
 -- the feet, so B means "faster" everywhere it means anything -- and with
 -- "match" the mode keeps its lead whether or not B is down.
+--
+-- "toggle" reads a latch the caller keeps rather than the button itself;
+-- main.lua flips it on B's rising edge.
 function Run.running(ctx, opts)
   if Run.multiplier(ctx, opts) <= 1 then return false end
-  if opts.trigger == "always" then return true end
+  local trigger = opts.trigger
+  if trigger == "always" then return true end
+  if trigger == "toggle" then return opts.toggled == true end
   local input = ctx.input
   return input ~= nil and input.isDown ~= nil and input:isDown("b") == true
+end
+
+-- B's rising edge, for the toggle latch.  Guarded the same way isDown is:
+-- a driver or a stub may hand over an input with neither method.
+function Run.togglePressed(input)
+  return input ~= nil and input.wasPressed ~= nil
+     and input:wasPressed("b") == true
 end
 
 -- Step length in frames.  Floored to whole frames and never below 1: the

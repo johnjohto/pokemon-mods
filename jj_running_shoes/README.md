@@ -23,8 +23,17 @@ Three rows in the options menu.
 — so at the default the shoes catch the bike. **1.5X** leaves the bike
 ahead.
 
-**RUN BUTTON** picks how it triggers: **HOLD B** (default) or **ALWAYS**,
-which runs whenever you move and needs no button at all.
+**RUN BUTTON** picks how it triggers: **HOLD B** (default), **TOGGLE**, or
+**ALWAYS**. **TOGGLE** latches — tap B once to start running and again to
+stop, no holding — and it applies to the bicycle and the water too,
+wherever those rows ask for more than vanilla. The latch is deliberately
+not saved: a run state that survived a reload would have you moving at
+double speed with no memory of asking for it.
+
+Tapping B in a menu or a battle cannot flip the latch. The engine only
+updates the state on top of the stack, so the overworld — where the latch
+lives — is not running while a menu is open, and the B that backs out of
+one never reaches it.
 
 **BIKE SPEED** hurries the bicycle the same way: **VANILLA** (default,
 untouched), **MATCH RUN**, **1.5X**, or **2X**. **MATCH RUN** hands the
