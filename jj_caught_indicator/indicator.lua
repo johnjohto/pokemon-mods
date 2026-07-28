@@ -16,6 +16,11 @@ function Indicator.shouldShow(battle, game)
   if not enemy or not enemy.mon or enemy.fainted then return false end
   if battle.showEnemyTrainer or battle.enemySendingOut then return false end
   if (battle.introSlide or 0) ~= 0 then return false end
+  -- the party ball rows hold the HUD back while the intro text runs, in
+  -- both layouts (BattleState's enemy HUD gate and WideBattle.drawHUDs
+  -- both test introBalls); without this the mark appears before the box
+  -- it belongs to
+  if battle.introBalls then return false end
   if battle.growInScale and battle:growInScale(enemy) then return false end
   local dex = game.save and game.save.pokedex
   return dex ~= nil and dex.owned ~= nil
@@ -33,11 +38,10 @@ end
 -- exactly the classic icon spot, so the old fixed placement printed the
 -- mark over the name's first letter. The row below is the HP bar, which
 -- with its end cap fills out to the box's inner edge (x=120). So the icon
--- goes immediately right of the bar, on its own row, in the gap between
--- the status box (ends at x=128) and the enemy picture region (starts at
--- x=160).
+-- goes immediately right of the bar's fill, which ends at x=112, in the
+-- empty cap cell before the box's right border (measured at x=121).
 function Indicator.placement(wide)
-  if wide then return 128, 16 end
+  if wide then return 112, 16 end
   return 8, 8
 end
 

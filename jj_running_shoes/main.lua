@@ -26,14 +26,26 @@ return function(mod)
     { key = "bike", label = "BIKE SPEED", type = "choice", default = 1,
       choices = { { "VANILLA", 1 }, { "MATCH RUN", "match" },
                   { "1.5X", 1.5 }, { "2X", 2 } } },
+    -- surfing is its own mode with its own row: a player who wants to
+    -- cross water faster does not necessarily want to sprint on land
+    { key = "surf", label = "SURF SPEED", type = "choice", default = 1,
+      choices = { { "VANILLA", 1 }, { "MATCH RUN", "match" },
+                  { "1.5X", 1.5 }, { "2X", 2 } } },
   })
 
+  -- a row is either the literal "match" or a number; anything else is a
+  -- stale saved value and reads as vanilla
+  local function choice(key)
+    local v = mod.options:get(key)
+    return v == "match" and "match" or (tonumber(v) or 1)
+  end
+
   local function opts()
-    local bike = mod.options:get("bike")
     return {
       speed = tonumber(mod.options:get("speed")) or 2,
       trigger = mod.options:get("trigger") or "hold",
-      bike = bike == "match" and "match" or (tonumber(bike) or 1),
+      bike = choice("bike"),
+      surf = choice("surf"),
     }
   end
 

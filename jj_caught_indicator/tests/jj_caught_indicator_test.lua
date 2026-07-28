@@ -71,6 +71,15 @@ local fainted = wildBattle("PIDGEY")
 fainted.enemy.fainted = true
 T.check(not Indicator.shouldShow(fainted, newGame({ PIDGEY = true })),
   "no icon over a fainted enemy")
+-- the party ball rows hold the HUD back while the intro text runs; both
+-- layouts gate on this, so the mark must too or it lands before the box
+local balls = wildBattle("PIDGEY")
+balls.introBalls = true
+T.check(not Indicator.shouldShow(balls, newGame({ PIDGEY = true })),
+  "no icon while the intro ball rows are up")
+balls.introBalls = nil
+T.check(Indicator.shouldShow(balls, newGame({ PIDGEY = true })),
+  "and it returns once they clear")
 local growing = wildBattle("PIDGEY")
 growing.growIn = { battler = growing.enemy, frame = 0 }
 function growing:growInScale(b)
@@ -101,8 +110,8 @@ T.eq(y, 8, "icon sits on the second row, above the HP bracket")
 -- first letter. Right of the HP bar instead, clear of both the status box
 -- (ends x=128) and the enemy picture region (starts x=160).
 local wx, wy = Indicator.placement(true)
-T.eq(wx, 128, "wide icon clears the foe status box")
-T.check(wx + 8 <= 160, "and stays out of the enemy picture region")
+T.eq(wx, 112, "wide icon starts where the foe HP bar's fill ends")
+T.check(wx + 8 <= 121, "and clears the box's right border, measured at 121")
 T.eq(wy, 16, "wide icon rides the HP bar's own row")
 T.check(wx ~= x or wy ~= y, "the two layouts do not share a spot")
 

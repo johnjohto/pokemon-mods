@@ -9,23 +9,26 @@ local Run = {}
 -- as exactly one cycle.
 Run.CYCLE = 16
 
+-- A mode's own setting, resolved.  "match" pins it to the walking
+-- multiplier -- which is how the bicycle holds its 2:1 lead over a runner
+-- rather than being caught by one -- and a number stands alone.
+local function setting(value, runSpeed)
+  if value == "match" then return runSpeed or 1 end
+  return tonumber(value) or 1
+end
+
 -- The multiplier this step is eligible for; 1 is vanilla.  Surfing is
--- never hurried: no legs, no pedals.
+-- checked before the bicycle: the sea is crossed on the water sprite
+-- whatever the player was riding when they stepped in.
 function Run.multiplier(ctx, opts)
-  if ctx.surfing then return 1 end
-  if ctx.onBike then
-    local bike = opts.bike or 1
-    -- "match" pins the bicycle to the walking multiplier, so it holds its
-    -- 2:1 lead over a runner rather than being caught by one
-    if bike == "match" then return opts.speed or 1 end
-    return bike
-  end
+  if ctx.surfing then return setting(opts.surf, opts.speed) end
+  if ctx.onBike then return setting(opts.bike, opts.speed) end
   return opts.speed or 1
 end
 
--- Whether to hurry this step.  The bicycle answers to the same trigger as
+-- Whether to hurry this step.  Every mode answers to the same trigger as
 -- the feet, so B means "faster" everywhere it means anything -- and with
--- "match" the bike keeps its lead whether or not B is down.
+-- "match" the mode keeps its lead whether or not B is down.
 function Run.running(ctx, opts)
   if Run.multiplier(ctx, opts) <= 1 then return false end
   if opts.trigger == "always" then return true end

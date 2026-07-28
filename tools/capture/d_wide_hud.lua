@@ -70,6 +70,15 @@ return function(game)
   shoot("og", "wide_hud_og.png")
   shoot("wide", "wide_hud_wide.png")
 
+  -- diagnostic: the INK style is black, and so is the status box frame, so
+  -- a bar sitting on a frame line is indistinguishable from it.  Re-shoot
+  -- the wide pass in GEN 2 BLUE, where the two cannot be confused.
+  local loader = game.mods
+  loader.modOptions = loader.modOptions or {}
+  loader.modOptions.jj_exp_bar = loader.modOptions.jj_exp_bar or {}
+  loader.modOptions.jj_exp_bar.bar_style = "blue"
+  shoot("wide", "wide_hud_wide_blue.png")
+
   U.log("wide hud captured")
   love.event.quit()
 end

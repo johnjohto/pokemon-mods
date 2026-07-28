@@ -28,6 +28,8 @@ T.eq(schema[2].key, "trigger", "the second row is the trigger")
 T.eq(schema[2].default, "hold", "HOLD B is the default trigger")
 T.eq(schema[3].key, "bike", "the third row is the bicycle")
 T.eq(schema[3].default, 1, "the bicycle is vanilla until asked otherwise")
+T.eq(schema[4].key, "surf", "the fourth row is surfing")
+T.eq(schema[4].default, 1, "and it is vanilla until asked too")
 
 -- ------- the gate, on foot
 
@@ -75,7 +77,30 @@ local BIKE15 = { speed = 2, trigger = "hold", bike = 1.5 }
 T.eq(Run.multiplier(BIKE, BIKE15), 1.5, "a number sets the bicycle alone")
 T.eq(Run.multiplier(ctx(), BIKE15), 2, "without touching the feet")
 T.check(not Run.running(ctx({ onBike = true, surfing = true }), MATCH),
-  "surfing outranks the bicycle -- the sea bike is never hurried")
+  "surfing is read before the bicycle, and is vanilla by default")
+
+-- ------- the gate, surfing
+
+local SURFING = ctx({ surfing = true })
+T.check(not Run.running(SURFING, HOLD), "surfing is left alone by default")
+T.eq(Run.multiplier(SURFING, HOLD), 1, "and its multiplier is vanilla")
+
+local SURF2 = { speed = 2, trigger = "hold", surf = 2 }
+T.eq(Run.multiplier(SURFING, SURF2), 2, "SURF SPEED hurries the water")
+T.check(Run.running(SURFING, SURF2), "so B speeds up a crossing")
+T.eq(Run.frames(16, SURFING, SURF2), 8, "halving the step, as on foot")
+T.eq(Run.multiplier(ctx({ onBike = true }), SURF2), 1,
+  "and it never leaks onto the bicycle")
+
+local SURFMATCH = { speed = 1.5, trigger = "hold", surf = "match" }
+T.eq(Run.multiplier(SURFING, SURFMATCH), 1.5,
+  "MATCH RUN pins surfing to the walking multiplier")
+
+-- surfing wins over the bicycle when both are somehow set: the player is
+-- on the water sprite, so the water's setting is the one that applies
+T.eq(Run.multiplier(ctx({ surfing = true, onBike = true }),
+  { speed = 2, trigger = "hold", bike = 2, surf = 1 }), 1,
+  "a surfing step reads SURF SPEED, not BIKE SPEED")
 
 -- ------- step length
 

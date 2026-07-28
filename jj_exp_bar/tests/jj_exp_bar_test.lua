@@ -156,9 +156,9 @@ T.eq(select(3, ExpBar.geometry(false, 89)), 89, "classic GEN 2 sits a pixel up")
 -- wide: inside the player status box's bottom frame row, spanning the
 -- inner width between the vertical borders
 local wx, ww, wy = ExpBar.geometry(true, 90)
-T.eq(wx, 192, "wide bar starts inside the box's left border")
-T.eq(wx + ww, 296, "and ends inside its right border")
-T.check(wy < 88 + 8, "wide bar is within the bottom frame row band")
+T.eq(wx, 191, "wide bar overhangs the box's inner left edge by a pixel")
+T.eq(wx + ww, 297, "and its right edge by one too")
+T.check(wy >= 88 and wy < 96, "wide bar sits in the bottom frame row band")
 T.check(wy > 80, "and below the HP numbers row")
 
 -- the BAR POS option is stored in classic pixels, so it has to carry

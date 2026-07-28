@@ -99,9 +99,15 @@ ExpBar.CLASSIC = { x = 80, w = 67, y = 90 }
 -- Wide (304x144, upstream v0.1.31's BATTLE LAYOUT -> WIDE): the player's
 -- status is a 15x5 box at (184,56), and all three of its interior rows are
 -- spoken for -- name at y=64, HP bar at y=72, HP numbers at y=80. So the
--- bar rides the inside of the bottom frame row (the band at y=88..96),
--- spanning the box's inner width between the vertical border columns.
-ExpBar.WIDE = { x = 192, w = 104, y = 88 }
+-- bar rides the bottom frame row (the band at y=88..96), overhanging the
+-- inner width by a pixel at each end so it reads as part of the frame
+-- rather than as something floating inside it.
+--
+-- y is the white gap inside the frame's double line, measured off the
+-- rendered box: ink rows sit at y=90, 92 and 93, and y=91 is clear. The
+-- gap is the only row in the band where the default INK style -- black,
+-- like the frame itself -- stays legible.
+ExpBar.WIDE = { x = 191, w = 106, y = 91 }
 
 -- The BAR POS option is stored in classic pixels, so carry its offset
 -- across rather than reading it as an absolute: GEN 2 keeps meaning "one
