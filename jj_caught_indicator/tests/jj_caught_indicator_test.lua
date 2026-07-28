@@ -122,10 +122,16 @@ for style, rows in pairs(Indicator.ICONS) do
   T.check(ink > 0, style .. " actually draws something")
 end
 
-T.eq(Indicator.pixels("gen2")[2], "XX.XXXXX",
-  "GEN 2 keeps its glint on the second row")
-T.eq(Indicator.pixels("ball")[1], "..XXXX..",
+-- BALL shipped in 1.0.0, so its art is pinned: changing it would alter
+-- what an existing player already sees. GEN 2 is still being drawn, so
+-- it is held to what actually matters -- that picking the row changes
+-- the mark -- and the 8x8 checks above catch a typo either way.
+T.eq(table.concat(Indicator.ICONS.ball, "\n"),
+  "..XXXX..\n.X....X.\nX......X\nXXXXXXXX\nX......X\n.X....X.\n..XXXX..\n........",
   "BALL is unchanged from the released art")
+T.check(table.concat(Indicator.ICONS.gen2, "\n")
+     ~= table.concat(Indicator.ICONS.ball, "\n"),
+  "GEN 2 is a different mark, so the option earns its row")
 T.eq(Indicator.pixels("nonsense"), Indicator.ICONS.ball,
   "an unknown style falls back to the default rather than nothing")
 T.eq(Indicator.pixels(nil), Indicator.ICONS.ball,

@@ -48,13 +48,13 @@ Indicator.ICONS = {
   -- the Gen 2 mark: a filled top with a glint at the upper left, the
   -- classic red-top silhouette in one bit, over an open lower half
   gen2 = {
+    "........",
+    "..XXXX..",
+    ".XX.XXX.",
     ".XXXXXX.",
-    "XX.XXXXX",
-    "XXXXXXXX",
-    "X......X",
-    "X......X",
-    "X......X",
-    ".XXXXXX.",
+    ".X....X.",
+    ".X....X.",
+    "..XXXX..",
     "........",
   },
 }
