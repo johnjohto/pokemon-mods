@@ -110,7 +110,7 @@ T.eq(y, 8, "icon sits on the second row, above the HP bracket")
 -- first letter. Right of the HP bar instead, clear of both the status box
 -- (ends x=128) and the enemy picture region (starts x=160).
 local wx, wy = Indicator.placement(true)
-T.eq(wx, 112, "wide icon starts where the foe HP bar's fill ends")
+T.eq(wx, 113, "wide icon sits just past where the foe HP bar's fill ends")
 T.check(wx + 8 <= 121, "and clears the box's right border, measured at 121")
 T.eq(wy, 16, "wide icon rides the HP bar's own row")
 T.check(wx ~= x or wy ~= y, "the two layouts do not share a spot")

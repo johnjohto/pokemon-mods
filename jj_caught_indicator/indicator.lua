@@ -39,9 +39,11 @@ end
 -- mark over the name's first letter. The row below is the HP bar, which
 -- with its end cap fills out to the box's inner edge (x=120). So the icon
 -- goes immediately right of the bar's fill, which ends at x=112, in the
--- empty cap cell before the box's right border (measured at x=121).
+-- empty cap cell before the box's right border (measured at x=121). The
+-- extra pixel of clearance puts its right edge flush at 120, hard against
+-- that border without touching it.
 function Indicator.placement(wide)
-  if wide then return 112, 16 end
+  if wide then return 113, 16 end
   return 8, 8
 end
 
