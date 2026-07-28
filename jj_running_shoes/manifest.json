@@ -1,0 +1,9 @@
+{
+  "id": "jj_running_shoes",
+  "name": "Running Shoes",
+  "version": "1.0.0",
+  "entry": "main.lua",
+  "category": "MECHANIC",
+  "permissions": ["engine_internals"],
+  "description": "Hold B to run. On foot the player covers a tile in half the frames and the legs cycle twice as fast to match. The bike, surfing, and every step-driven system stay vanilla."
+}

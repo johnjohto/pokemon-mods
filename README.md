@@ -40,3 +40,4 @@ the zip as the release asset).
 - `jj_auto_field_moves` — field moves fire on contact, no menus.
 - `jj_exp_bar` — Gen 2-style EXP bar under the player HP bar in battle.
 - `jj_caught_indicator` — pokeball icon next to a wild pokémon you've already caught.
+- `jj_running_shoes` — hold B to run at double speed on foot.

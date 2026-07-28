@@ -19,6 +19,8 @@ starts.
   fills on exp gain, wraps through level-ups, three fill styles.
 - **jj_caught_indicator** — Gen 2-style pokeball icon next to a wild
   enemy's name when its species is already owned in the dex.
+- **jj_running_shoes** — hold B to run: half the frames per tile on foot,
+  with the leg cadence doubled to match. Bike and surf keep their speed.
 
 ## Next
 
@@ -31,3 +33,7 @@ starts.
 
 - **Upstream eligibility hook** — filed as PR #310. If it lands,
   jj_hm_field_unlock can drop its runtime patch.
+- **Upstream walk-cadence hook** — `movement.speed` sets a step's length
+  but nothing exposes the animation clock, so jj_running_shoes patches
+  Player:update to keep the legs in step. A companion hook there would
+  let it drop the patch.
