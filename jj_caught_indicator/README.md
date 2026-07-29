@@ -21,6 +21,19 @@ half, the classic red-top silhouette in one bit) or **GEN 1** (a small
 open ball, all outline). Both are 8×8 and drawn in the HUD's own ink, so
 either recolors with the rest of the screen.
 
+**LAST BALL** is on by default. Once the mod is installed, a successful
+wild catch records the ball used and colors that species' indicator the
+next time you meet it: Poké Ball red, Great Ball blue, Ultra Ball yellow,
+Master Ball purple, and Safari Ball green. It always uses your chosen
+**CAUGHT ICON** silhouette. Turn the row off to keep every mark in the
+normal HUD ink.
+
+Gen 1 itself saves only whether a species is owned, not the ball used to
+obtain it. Existing Pokédex entries, as well as starters, gifts, trades,
+and catches made while the mod was disabled, therefore retain the normal
+HUD-ink mark. A later catch of that species updates the saved color to its
+new ball.
+
 Upgrading from 1.0.0 changes the mark you see, since that release drew
 one icon unconditionally and neither option is a pixel match for it.
 

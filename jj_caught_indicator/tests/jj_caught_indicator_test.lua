@@ -135,6 +135,26 @@ T.eq(#schema[1].choices, 2, "two icons offered")
 -- for: the new default changes the mark an upgrading player sees
 T.eq(schema[1].choices[2][2], "gen1", "with the outline mark still offered")
 
+T.eq(schema[2].key, "last_ball", "the second row controls capture-ball color")
+T.eq(schema[2].type, "toggle", "LAST BALL is an ON/OFF choice")
+T.eq(schema[2].default, true, "recorded capture balls color the mark by default")
+
+-- The engine emits this only after a catch succeeds, with the ball it used.
+-- The mod stores one ball per species, so another successful catch replaces
+-- the older answer as the request's "last caught it in" wording requires.
+run.loader.events:emit("pokemon.caught", { species = "PIDGEY", ball = "POKE_BALL" })
+T.eq(run.loader.modSave.jj_caught_indicator.caughtBalls.PIDGEY, "POKE_BALL",
+  "a successful catch records its ball")
+run.loader.events:emit("pokemon.caught", { species = "PIDGEY", ball = "ULTRA_BALL" })
+T.eq(run.loader.modSave.jj_caught_indicator.caughtBalls.PIDGEY, "ULTRA_BALL",
+  "a later catch replaces the species' recorded ball")
+run.loader.events:emit("pokemon.caught", { mon = { species = "RATTATA" }, ball = "SAFARI_BALL" })
+T.eq(run.loader.modSave.jj_caught_indicator.caughtBalls.RATTATA, "SAFARI_BALL",
+  "the event's mon payload is a safe fallback for its species")
+run.loader.events:emit("pokemon.caught", { species = "WEEDLE" })
+T.eq(run.loader.modSave.jj_caught_indicator.caughtBalls.WEEDLE, nil,
+  "an incomplete event cannot invent a capture history")
+
 -- hand-typed pixel art: a short or stray row would rasterize as a
 -- silently clipped icon, so every style is checked against the 8x8 the
 -- draw allocates
@@ -167,11 +187,26 @@ T.eq(Indicator.pixels(nil), Indicator.ICONS.gen2,
 T.eq(Indicator.pixels("gen1"), Indicator.ICONS.gen1,
   "and a named style is still honoured")
 
+-- A recognized ball supplies a full-color tint while unknown and historical
+-- entries deliberately keep the selected icon in ordinary HUD ink.
+T.same(Indicator.ballColor("POKE_BALL"), { 0.86, 0.23, 0.20 },
+  "a Poké Ball gets its red tint")
+T.same(Indicator.ballColor("GREAT_BALL"), { 0.22, 0.47, 0.85 },
+  "a Great Ball gets its blue tint")
+T.same(Indicator.ballColor("ULTRA_BALL"), { 0.89, 0.67, 0.08 },
+  "an Ultra Ball gets its yellow tint")
+T.same(Indicator.ballColor("MASTER_BALL"), { 0.60, 0.30, 0.77 },
+  "a Master Ball gets its purple tint")
+T.same(Indicator.ballColor("SAFARI_BALL"), { 0.33, 0.69, 0.32 },
+  "a Safari Ball gets its green tint")
+T.eq(Indicator.ballColor("FUTURE_BALL"), nil,
+  "an unknown ball falls back to the normal HUD ink")
+
 -- ------- ICON SHAKE: whether the mark rides the HUD's shake
 
-T.eq(schema[2].key, "shake", "the second row is the shake")
-T.eq(schema[2].type, "toggle", "offered as an ON/OFF toggle")
-T.eq(schema[2].default, true, "and on by default -- vanilla is that it shakes")
+T.eq(schema[3].key, "shake", "the third row is the shake")
+T.eq(schema[3].type, "toggle", "offered as an ON/OFF toggle")
+T.eq(schema[3].default, true, "and on by default -- vanilla is that it shakes")
 
 -- the explicit program BattleState runs: the mark takes it whole, so it
 -- lands on the same pixel as the name beside it

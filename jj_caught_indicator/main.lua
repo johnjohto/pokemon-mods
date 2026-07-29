@@ -13,6 +13,10 @@ return function(mod)
     { key = "icon", label = "CAUGHT ICON", type = "choice",
       default = Indicator.DEFAULT_ICON,
       choices = { { "GEN 2", "gen2" }, { "GEN 1", "gen1" } } },
+    -- The game only tells a mod about catches made while it is installed.
+    -- An unrecorded species deliberately keeps the selected icon in HUD ink,
+    -- rather than pretending a starter, trade, gift, or old save used a ball.
+    { key = "last_ball", label = "LAST BALL", type = "toggle", default = true },
     -- ON is vanilla: the mark shakes with the name it sits beside. OFF pins
     -- it. Only the classic layout has anything to pin -- the wide one never
     -- shook the mark, because its status boxes don't shake either.
@@ -26,6 +30,19 @@ return function(mod)
   local game
   mod.events:on("game.ready", function(e) game = e.game end)
 
+  -- Gen 1's save has only the dex's seen/owned bits. The engine event carries
+  -- the one bit of capture history the vanilla save lacks, so retain the last
+  -- successful ball per species in this mod's own save namespace. It fires
+  -- after the mon has actually reached the party or box, never for a miss.
+  mod.events:on("pokemon.caught", function(e)
+    if type(e) ~= "table" then return end
+    local species = e.species or (e.mon and e.mon.species)
+    if type(species) ~= "string" or type(e.ball) ~= "string" then return end
+    local caughtBalls = mod.save:get("caughtBalls", {})
+    caughtBalls[species] = e.ball
+    mod.save:set("caughtBalls", caughtBalls)
+  end)
+
   -- built lazily and kept per style: love.graphics only exists once a
   -- frame draws, and caching both means switching the option mid-battle
   -- costs nothing
@@ -37,7 +54,10 @@ return function(mod)
     for y, row in ipairs(Indicator.pixels(style)) do
       for x = 1, 8 do
         if row:sub(x, x) == "X" then
-          data:setPixel(x - 1, y - 1, 0, 0, 0, 1)
+          -- White source pixels let setColor below produce either the HUD's
+          -- usual black ink or a capture-ball tint. The old black source
+          -- would multiply every tint back to black.
+          data:setPixel(x - 1, y - 1, 1, 1, 1, 1)
         end
       end
     end
@@ -58,9 +78,19 @@ return function(mod)
       mod.options:get("shake") ~= false)
     local x, y = Indicator.placement(wide)
     local g = love.graphics
+    local ball
+    if mod.options:get("last_ball") ~= false then
+      local caughtBalls = mod.save:get("caughtBalls", {})
+      ball = caughtBalls[battle.enemy.mon.species]
+    end
+    local color = Indicator.ballColor(ball)
     g.push()
     g.translate(sx, sy)
-    g.setColor(1, 1, 1, 1)
+    if color then
+      g.setColor(color[1], color[2], color[3], 1)
+    else
+      g.setColor(0, 0, 0, 1)
+    end
     g.draw(iconImage(mod.options:get("icon")), x, y)
     -- the hook runs after the layout's flash rectangle, so put the mark back
     -- under it: the same wash over its own cell alone, since the rest of the

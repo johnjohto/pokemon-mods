@@ -103,9 +103,10 @@ function Indicator.flashAlpha(battle)
 end
 
 -- The icons, as pixel rows; X is ink, and every one is 8x8 to fill the
--- tile placement() picks. main.lua rasterizes them in black like the rest
--- of the enemy HUD, so the zone pass recolors them with everything else.
--- Art lives here rather than beside the draw so the tests can check it.
+-- tile placement() picks. main.lua rasterizes them as white and tints them
+-- black like the rest of the enemy HUD -- or with the recorded capture
+-- ball's color. Art lives here rather than beside the draw so the tests can
+-- check it.
 Indicator.ICONS = {
   -- the Gen 1 mark: a small open ball, all outline
   gen1 = {
@@ -138,6 +139,22 @@ Indicator.DEFAULT_ICON = "gen2"
 -- stale saved option must never cost the player the icon entirely.
 function Indicator.pixels(style)
   return Indicator.ICONS[style] or Indicator.ICONS[Indicator.DEFAULT_ICON]
+end
+
+-- Colors for balls that can make a successful Gen 1 catch. They deliberately
+-- live apart from the icon choice: GEN 1 / GEN 2 remains the player's chosen
+-- silhouette, while the color answers which ball most recently caught that
+-- species. A ball unknown to this release uses the normal HUD ink instead.
+Indicator.BALL_COLORS = {
+  POKE_BALL = { 0.86, 0.23, 0.20 },
+  GREAT_BALL = { 0.22, 0.47, 0.85 },
+  ULTRA_BALL = { 0.89, 0.67, 0.08 },
+  MASTER_BALL = { 0.60, 0.30, 0.77 },
+  SAFARI_BALL = { 0.33, 0.69, 0.32 },
+}
+
+function Indicator.ballColor(ball)
+  return Indicator.BALL_COLORS[ball]
 end
 
 return Indicator
