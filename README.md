@@ -3,11 +3,30 @@
 Mods for the Pokémon Gen 1 recompilation. Each top-level `jj_*` folder is
 one self-contained mod with its own manifest, readme, and headless tests.
 
-## Download
+## Install
 
 Grab the zip for a mod from its
-[GitHub release](https://github.com/johnjohto/pokemon-mods/releases),
-unzip it into the game's `mods/` folder, and enable it in the MODS menu.
+[GitHub release](https://github.com/johnjohto/pokemon-mods/releases) and
+**leave it zipped**. On the game's start screen open the **MODS** tab and
+either press *Import mod .zip* or drag the file onto the window. The mod
+lands in the right place on its own and comes up enabled.
+
+Do not unzip it into the folder holding `gen1recomp.exe`. A released build
+is not portable, so the game never puts that folder on its read path and a
+mod sitting there is ignored without a word — the symptom is a mod that
+simply never shows up in the MODS menu. This bites hardest when the game
+was installed by a launcher, where that folder is somewhere you never look.
+
+Mods live in the save directory instead. On Windows that is:
+
+```
+%APPDATA%\pokemon-love2d\mods\
+```
+
+with one folder per mod, `manifest.json` directly inside it. macOS and
+Linux use `pokemon-love2d` under `~/Library/Application Support` and
+`~/.local/share` respectively. If a path doesn't exist yet, launch the game
+once — or just use *Import mod .zip* and never think about it.
 
 ## Develop
 

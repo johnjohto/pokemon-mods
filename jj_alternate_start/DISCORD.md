@@ -14,3 +14,5 @@ Every town has a guaranteed way out: Fuchsia and Cinnabar would softlock a fresh
 
 ## Download
 :link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_alternate_start-v2.0.1
+
+:inbox_tray: Don't unzip it — drag the `.zip` onto the game's start screen, or use **Import mod .zip** on the **MODS** tab.

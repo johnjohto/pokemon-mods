@@ -14,3 +14,5 @@ No setup: install and forget it.
 
 ## Download
 :link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_exp_bar-v1.1.0
+
+:inbox_tray: Don't unzip it — drag the `.zip` onto the game's start screen, or use **Import mod .zip** on the **MODS** tab.

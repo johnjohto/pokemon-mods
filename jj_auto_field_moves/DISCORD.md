@@ -15,3 +15,5 @@ Every normal rule still applies: you need the move (or **HM Field Unlock**), the
 
 ## Download
 :link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_auto_field_moves-v1.1.1
+
+:inbox_tray: Don't unzip it — drag the `.zip` onto the game's start screen, or use **Import mod .zip** on the **MODS** tab.

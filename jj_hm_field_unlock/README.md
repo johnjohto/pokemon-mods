@@ -19,8 +19,14 @@ water, trees, boulders, and dark caves works under this wider rule too.
 
 ## Install
 
-Copy this folder into the game's `mods/` directory and enable it in the
-MODS menu.
+Download the `.zip` from the release and, **without unzipping it**, drag it
+onto the game's start screen — or open the **MODS** tab there and press
+*Import mod .zip*. It installs itself and comes up enabled.
+
+Unzipping it next to `gen1recomp.exe` does not work: a released build is not
+portable, so the game never reads that folder and the mod silently never
+appears. See the [root README](../README.md#install) for the folder to use
+if you would rather place it by hand.
 
 ## Develop
 

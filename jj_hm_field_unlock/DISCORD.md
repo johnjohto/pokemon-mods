@@ -14,3 +14,5 @@ Pairs beautifully with **Auto Field Moves** for a fully menu-free overworld.
 
 ## Download
 :link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_hm_field_unlock-v1.0.0
+
+:inbox_tray: Don't unzip it — drag the `.zip` onto the game's start screen, or use **Import mod .zip** on the **MODS** tab.

@@ -14,3 +14,5 @@ Wild battles only, purely visual, nothing else changes. Install and forget it.
 
 ## Download
 :link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_caught_indicator-v1.2.0
+
+:inbox_tray: Don't unzip it — drag the `.zip` onto the game's start screen, or use **Import mod .zip** on the **MODS** tab.
