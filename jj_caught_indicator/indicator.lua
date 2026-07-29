@@ -55,6 +55,53 @@ function Indicator.isWide(battle)
   return battle:wideLayout() == true
 end
 
+-- The shake offsets the mark rides, per layout and per the ICON SHAKE row.
+--
+-- Classic: the same offsets BattleState applies to the scene and to the
+-- enemy HUD block, so the mark shakes with the name it sits beside. The
+-- fx.shake branch reproduces BattleState's own fallback -- a bare countdown
+-- with no program behind it alternates +/-2 on a four-frame cycle.
+--
+-- Wide: nothing, whatever the row says. That layout draws its status boxes
+-- outside the shaken picture regions, so a still mark is what matches a
+-- still foe panel; riding the shake there would be the icon jittering alone
+-- against a box that isn't moving.
+--
+-- shake=false pins it in the classic layout too, for anyone who finds a
+-- jittering 8x8 harder to read than a still one. The cost is honest: the
+-- mark holds its place while the name beside it shakes.
+function Indicator.shakeOffset(battle, wide, shake)
+  if wide or shake == false or not battle then return 0, 0 end
+  local fx = battle.fx
+  local sx = (fx and fx.shakeX) or 0
+  local sy = (fx and fx.shakeY) or 0
+  if sx == 0 and sy == 0 and fx and fx.shake and fx.shake > 0 then
+    sx = (battle.frame or 0) % 4 < 2 and 2 or -2
+  end
+  sx = sx + ((fx and fx.hudShakeX) or 0)
+  return sx, sy
+end
+
+-- The white wash BattleState and WideBattle lay over the screen on a flash
+-- frame. Not a preference, which is why no option reaches it.
+Indicator.FLASH_ALPHA = 0.85
+
+-- That wash's alpha this frame, or nil when the screen is not flashing.
+--
+-- battle.overlay runs AFTER the flash rectangle in both layouts
+-- (BattleState.draw, WideBattle.draw), so anything drawn from the hook lands
+-- on top of it -- the mark would sit crisp and black over an 85%-white
+-- screen, the one thing on it not flashing. Repainting the same wash over
+-- the icon's own cell, not the screen (which is already washed, and would
+-- only get whiter), puts it back under the effect exactly as though it had
+-- been drawn before it.
+function Indicator.flashAlpha(battle)
+  local fx = battle and battle.fx
+  if not (fx and fx.flash and fx.flash > 0) then return nil end
+  if ((battle.frame or 0) % 4) >= 2 then return nil end
+  return Indicator.FLASH_ALPHA
+end
+
 -- The icons, as pixel rows; X is ink, and every one is 8x8 to fill the
 -- tile placement() picks. main.lua rasterizes them in black like the rest
 -- of the enemy HUD, so the zone pass recolors them with everything else.

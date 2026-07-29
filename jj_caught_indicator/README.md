@@ -9,7 +9,8 @@ to weaken it or run.
   can't be caught anyway).
 - Ghosts and the old man's tutorial battle get no icon either.
 - The icon rides the enemy HUD, so it shakes and slides with the name it
-  sits next to.
+  sits next to — or holds still, if you turn **ICON SHAKE** off.
+- It dims under the battle's screen flash along with everything else.
 - Purely visual: catching, the dex, and everything else play as vanilla.
 
 ## Options
@@ -22,6 +23,27 @@ either recolors with the rest of the screen.
 
 Upgrading from 1.0.0 changes the mark you see, since that release drew
 one icon unconditionally and neither option is a pixel match for it.
+
+An **ICON SHAKE** toggle decides whether the mark rides the enemy HUD's
+shake. **ON** is the default and the original behaviour: the mark moves
+with the name it sits beside, so the pair reads as one label. **OFF** pins
+it, for anyone who finds a jittering 8×8 harder to read than a still one —
+the tradeoff being that the mark then holds its place while the name next
+to it shakes.
+
+Only the classic layout has anything to pin. The widescreen layout draws
+its status boxes outside the shaken picture regions, so the mark was
+already still there and stays that way whichever way the row is set.
+
+## Screen effects
+
+The battle's white screen flash gets no option, because a mark floating
+crisp over a flashed screen is wrong rather than a matter of taste. The
+`battle.overlay` hook the mod draws from runs *after* each layout paints
+its flash rectangle, so anything drawn there lands on top of it. The mod
+repaints the same wash over the icon's own cell — not the screen, which
+already has one and would only get whiter — which puts the mark back
+under the effect exactly as though it had been drawn before it.
 
 ## Battle layouts
 
