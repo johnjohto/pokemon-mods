@@ -265,6 +265,51 @@ run.loader.modOptions["jj_running_shoes"] = nil
 local surfDefault = step(true, false, true)
 T.eq(surfDefault, 16, "with the row at VANILLA, B does nothing on water")
 
+-- ------- a scripted step is never hurried
+--
+-- OverworldState:scriptMove walks the player by setting moving/progress
+-- straight on the entity, so Player:tryMove -- and with it movement.speed
+-- -- is skipped entirely and the step runs at whatever stepFramesCur the
+-- last free-roam step left behind.  Every NPC the player is made to follow
+-- is pinned to Npc's own STEP_FRAMES, so a stale hurried value is the
+-- player walking straight past Oak on the way to the lab.
+local function scriptStep(p, dir)
+  p.facing = dir
+  p.targetX, p.targetY = Collision.target(p.cellX, p.cellY, dir)
+  p.moving, p.progress = true, 0
+  local frames = 0
+  repeat
+    frames = frames + 1
+  until p:update() or frames > 64
+  return frames
+end
+
+-- B stays held through the cutscene: the player has no idea a script just
+-- took the wheel, and the mod cannot ask them to let go
+Game.input = input(true)
+Game.save = { onBike = false }
+local cut = Player.new(Data, 5, 5, "down")
+T.eq(cut:tryMove("down", {}, nil), "moved", "a free-roam run step starts")
+local ran = 0
+repeat ran = ran + 1 until cut:update() or ran > 64
+T.eq(ran, 8, "and covers its tile at 2X, as it should")
+T.eq(scriptStep(cut, "down"), 16,
+  "the scripted step that follows it is the vanilla 16 frames")
+T.eq(scriptStep(cut, "down"), 16, "and so is every scripted step after it")
+
+-- the bicycle keeps its own vanilla, not the feet's: a scripted step on a
+-- bike was always 8 frames, and staying vanilla must not mean slowing to 16
+run.loader.modOptions["jj_running_shoes"] = { bike = 2 }
+Game.save = { onBike = true }
+local cutBike = Player.new(Data, 5, 5, "down")
+T.eq(cutBike:tryMove("down", {}, nil), "moved", "a hurried bicycle step starts")
+local pedalled = 0
+repeat pedalled = pedalled + 1 until cutBike:update() or pedalled > 64
+T.eq(pedalled, 4, "and covers its tile at 2X")
+T.eq(scriptStep(cutBike, "down"), 8,
+  "the scripted step after it is the bicycle's vanilla 8, not the feet's 16")
+run.loader.modOptions["jj_running_shoes"] = nil
+
 Collision.canMove = vanillaCanMove
 Game.input, Game.save = nil, nil
 

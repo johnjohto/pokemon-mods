@@ -99,7 +99,19 @@ return function(mod)
       local extra = Run.animTicks(progress + 1, stepLen, self.jjRunBase) - 1
       if extra > 0 then self.animClock = (self.animClock or 0) + extra end
     end
-    if landed then self.jjRunning = false end
+    if landed then
+      self.jjRunning = false
+      -- Hand the unhurried step length back.  A scripted step
+      -- (OverworldState:scriptMove -- Oak's walk to the lab, and every
+      -- other cutscene the player is walked through) sets moving/progress
+      -- on the entity directly and never calls Player:tryMove, so
+      -- movement.speed never fires for it: it simply inherits whatever
+      -- stepFramesCur the last free-roam step left behind.  Left hurried,
+      -- the player crosses a scripted tile in 8 frames while the NPC being
+      -- followed is pinned to Npc's own STEP_FRAMES 16, and walks straight
+      -- past them.
+      if self.jjRunBase then self.stepFramesCur = self.jjRunBase end
+    end
     return landed
   end
 end
