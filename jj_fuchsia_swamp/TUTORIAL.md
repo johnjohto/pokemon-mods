@@ -201,7 +201,7 @@ starts Surf.
 From the repository root, package with the game repository's modkit:
 
 ```
-python <game-repo>/tools/modkit.py pack <game-repo>/mods/jj_fuchsia_swamp -o <output>/jj_fuchsia_swamp-v0.1.0.zip
+python <game-repo>/tools/modkit.py pack <game-repo>/mods/jj_fuchsia_swamp -o <output>/jj_fuchsia_swamp-v1.0.0.zip
 ```
 
 Upload the verified ZIP with your GitHub release client, for example the

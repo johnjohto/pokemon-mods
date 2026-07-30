@@ -1,8 +1,9 @@
 {
   "id": "jj_fuchsia_swamp",
   "name": "Fuchsia Swamp",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "entry": "main.lua",
+  "game_version": ">=0.1.39 <2.0.0",
   "category": "CONTENT",
   "permissions": ["engine_internals"],
   "description": "An optional swamp quest beyond a hidden Route 19 cove."
