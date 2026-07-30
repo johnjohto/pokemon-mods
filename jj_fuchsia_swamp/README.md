@@ -2,6 +2,9 @@
 
 An optional swamp quest reached from a hidden Surf cove on Route 19.
 
+New modders: see [TUTORIAL.md](TUTORIAL.md) for a guided tour of the reusable
+map, quest, battle, tutor, and test patterns used here.
+
 ## Development status
 
 The current version is a playable quest slice. It registers a large custom
