@@ -7,6 +7,7 @@ An optional swamp quest reached through a hidden Surf cove on Route 19.
 :crossed_swords: Face the swamp's host in a four-Pokémon battle
 :house: Rest at the hut or return to Fuchsia once the quest is complete
 :sparkles: Earn repeatable Body Slam, Rock Slide, Sludge, and Rest lessons for any Pokémon through solo trials
+:books: Includes a platform-neutral tutorial that walks new modders through every Lua file, map connections, quest state, battles, tutoring, tests, and release checks
 
 `jj_fuchsia_swamp` v0.1.0
 
