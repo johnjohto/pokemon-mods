@@ -6,6 +6,23 @@ progress, trainer battles, a rest point, and a repeatable reward loop. This
 guide explains those patterns so you can adapt them for a different optional
 area.
 
+## File-by-file tour
+
+Read the files in this order:
+
+| File | Responsibility | Start here when you want to… |
+| --- | --- | --- |
+| `main.lua` | The mod entry point and orchestration layer: content registration, map layout, map scripts, battles, quest migration, and the tutor command. | Add a map, NPC, trainer, quest gate, or new flow. |
+| `route19_blocks.lua` | A complete replacement block table for the small Route 19 cove patch. | Change the entrance's terrain without burying hundreds of block IDs in `main.lua`. |
+| `tutor.lua` | Data and pure helpers for the repeatable lesson system: lesson definitions, level scaling, move checks, menu bounds, and loss destination. | Add or rebalance a lesson without changing UI or battle control flow. |
+| `tests/jj_fuchsia_swamp_test.lua` | A headless, player-rule-focused regression suite for the map, state, scripts, portraits, tutor, and connections. | Prove a change works before opening the game. |
+
+`route19_blocks.lua` is intentionally separate from `main.lua`. The Route 19
+patch must replace the full block array, and keeping that generated-looking
+terrain data in its own module leaves the quest logic readable. Treat it as a
+map asset: edit it only when changing the cove, then verify both the land-to-
+water path and reciprocal map connection in the test.
+
 ## Start with the smallest vertical slice
 
 The entry point, `main.lua`, returns a function that receives `mod`. Keep the
