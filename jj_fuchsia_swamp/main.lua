@@ -13,11 +13,12 @@ return function(mod)
     { "BODY_SLAM", "ROCK_SLIDE", "REST", "HYPER_BEAM" },
   }
   local BATTLE_END_TEXT = {
-    OPP_JJ_DREDGER = "The dredger is still.\nLeave it that way.",
-    OPP_JJ_SURVEYOR = "Paper tears. The reeds\ndo not.",
-    OPP_JJ_TECH = "The pump is quiet.\nSo is the argument.",
-    OPP_JJ_SHREK = "You are persistent.\nI can work with that.",
+    OPP_JJ_DREDGER = "Dredger stopped.\nKeep it stopped.",
+    OPP_JJ_SURVEYOR = "Paper tears.\nThe reeds stay.",
+    OPP_JJ_TECH = "Pump is quiet.\nKeep it quiet.",
+    OPP_JJ_SHREK = "You kept going.\nThat matters.",
   }
+  mod.exports.battleEndText = BATTLE_END_TEXT
   local function finishQuestBattle(ctx, result, battle, onDone)
     if result ~= "lose" or not ctx.overworld then
       if ctx.overworld then ctx.overworld:afterBattle(result, battle) end
@@ -109,6 +110,7 @@ return function(mod)
       id = lesson.trainer,
       name = "OGRE SHREK",
       pic = mod.path .. "/assets/shrek-source.png",
+      paletteSource = "ROM:SpriteSheetPointerTable[21]",
       parties = { { { level = 30, species = lesson.species } } },
     })
   end
@@ -144,7 +146,7 @@ return function(mod)
         { "warp", HUT, 2, 6, "down" },
         { "jump", "end" },
         { "label", "waiting" },
-        { "show_text", "Three crews.\nThree problems." },
+        { "show_text", "They poison it!\nMake them leave!" },
         { "jump", "end" },
         { "label", "after" },
         { "show_text", "The hut is open.\nDo not overuse it." },
@@ -345,10 +347,8 @@ return function(mod)
     end,
   })
 
-  -- Use the native overworld tileset instead of an invented tileset id.  The
-  -- field engine explicitly permits Surf on OVERWORLD, and its blocks 67 and
-  -- 11 are respectively open water and encounter grass.  This keeps the
-  -- Route 19 entrance honest: the player has to Surf into the swamp.
+  -- Keep the clearings as clean grass islands against open water. The swamp
+  -- reads better without Kanto's town-coast shoreline metatiles.
   local WATER, GRASS = 67, 11
   local SWAMP_WIDTH, SWAMP_HEIGHT = 10, 27
   local blocks = {}

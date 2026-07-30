@@ -66,8 +66,12 @@ return function(mod)
     if not o or not game or ctx.mover ~= o.player then return false end
     if ctx.reason == "tile" then
       -- water: surf straight on (Gen 1 has no confirmation prompt either)
-      if ctx.map:isWaterCell(ctx.toX, ctx.toY) and not o.player.surfing
-         and o:useSurfFieldMove() == "ok" then
+      if ctx.map:isWaterCell(ctx.toX, ctx.toY) and not o.player.surfing then
+        -- Collision's direction is authoritative for this blocked contact.
+        -- In particular, a rightward bump can arrive before the player
+        -- object's facing has been refreshed by an input edge.
+        if ctx.dir then o.player.facing = ctx.dir end
+        if o:useSurfFieldMove() ~= "ok" then return false end
         o:trySurf(ctx.toX, ctx.toY)
         skipText()
         skipFlash()

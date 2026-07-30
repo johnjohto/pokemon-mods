@@ -15,8 +15,11 @@ local Pokemon = require("src.pokemon.Pokemon")
 local BattleState = require("src.battle.BattleState")
 local Tutor = require("mods.jj_fuchsia_swamp.tutor")
 local PaletteFX = require("src.render.PaletteFX")
+local TextBox = require("src.render.TextBox")
+local Font = require("src.render.Font")
 
 Data:load()
+Font.load(Data)
 local run = T.sdk.loadMod("mods/jj_fuchsia_swamp", { data = Data })
 T.eq(#run.errors, 0, "loads clean (" .. tostring(run.errors[1]) .. ")")
 
@@ -86,11 +89,28 @@ T.eq(Data.maps[MAP].connections.west.map, "ROUTE_19",
 
 MapLoader.invalidate(MAP)
 local swamp = MapLoader.load(Data, MAP)
-T.eq(Data.maps[MAP].tileset, "OVERWORLD", "the swamp uses a Surf-capable tileset")
+T.eq(Data.maps[MAP].tileset, "OVERWORLD",
+  "the swamp stays on OVERWORLD so its native tile palettes apply")
+T.check(PaletteFX.hasWorldTileset(Data.maps[MAP].tileset),
+  "the swamp tileset resolves the base game's palette mapping")
+T.eq(#Data.tilesets.OVERWORLD.blocks, 128,
+  "the swamp does not alter the shared OVERWORLD blockset")
 T.check(swamp:isWaterCell(0, 0), "the Route 19 edge enters surfable water")
 T.check(swamp:isWalkableCell(6, 7), "the dredger's island is walkable")
 T.check(swamp:isGrassCell(6, 7), "the reclamation islands supply encounters")
 T.check(swamp:isWaterCell(0, 17), "water channels separate the reclamation sites")
+local function blockAt(def, x, y) return def.blocks[y * def.width + x + 1] end
+for _, island in ipairs({
+  { left = 2, top = 1, right = 5, bottom = 5 },
+  { left = 5, top = 10, right = 9, bottom = 14 },
+  { left = 1, top = 18, right = 5, bottom = 22 },
+  { left = 3, top = 23, right = 7, bottom = 26 },
+}) do
+  T.eq(blockAt(Data.maps[MAP], island.left, island.bottom), 11,
+    "each clearing keeps a clean grass edge along its bottom")
+  T.eq(blockAt(Data.maps[MAP], island.right, island.top), 11,
+    "each clearing keeps a clean grass edge along its right side")
+end
 local route19 = MapLoader.load(Data, "ROUTE_19")
 local function waterEdgeReachable(map)
   local queue, seen = {}, {}
@@ -140,6 +160,14 @@ T.eq(shrekScript[10][1], "jj_fuchsia_swamp:battle", "Shrek's script starts the c
 local siteScript = MapScripts.talkScript(MAP, "TEXT_JJ_SHREK_DREDGER")
 T.eq(siteScript[4][2], "OPP_JJ_DREDGER", "each site starts its own trainer battle")
 T.eq(siteScript[7][1], "jump", "crew victory text is handled inside the battle")
+local endText = run.loader.exports.jj_fuchsia_swamp.battleEndText
+for trainer, text in pairs(endText) do
+  local pages = TextBox.paginate(text, 18)
+  T.check(#pages == 1 and #pages[1] <= 2,
+    trainer .. " end-battle text fits one two-line text box")
+end
+T.eq(shrekScript[16][2], "They poison it!\nMake them leave!",
+  "Shrek is angry about the crews before the quest is cleared")
 local rumorScript = MapScripts.talkScript("FUCHSIA_CITY", "TEXT_FUCHSIACITY_YOUNGSTER1")
 T.check(rumorScript ~= nil, "Fuchsia has an optional swamp rumor")
 T.eq(rumorScript and rumorScript[1][2], "Someone on ROUTE 19\nfound a quiet cove.",
@@ -161,8 +189,13 @@ for _, lesson in ipairs(Tutor.lessons) do
   T.eq(trial.name, "OGRE SHREK", lesson.label .. " shows Shrek as the trainer")
   T.eq(trial.pic, "mods/jj_fuchsia_swamp/assets/shrek-source.png",
     lesson.label .. " uses Shrek's trainer portrait")
+  T.eq(trial.paletteSource, shrek.paletteSource,
+    lesson.label .. " uses Shrek's matching battle palette")
   T.check(type(lesson.winText) == "string" and lesson.winText ~= "",
     lesson.label .. " has Shrek's post-battle line")
+  local pages = TextBox.paginate(lesson.winText, 18)
+  T.check(#pages == 1 and #pages[1] <= 2,
+    lesson.label .. " lesson victory text fits one two-line text box")
 end
 T.eq(Data.trainers.OPP_JJ_DREDGER.basePic, "OPP_ENGINEER",
   "the dredger reuses the base game's Engineer portrait")

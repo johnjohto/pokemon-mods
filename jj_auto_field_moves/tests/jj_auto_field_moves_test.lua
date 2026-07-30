@@ -67,6 +67,17 @@ T.eq(blockedStep(ctx), false, "the step itself stays blocked")
 T.eq(#o.surfCalls, 1, "water contact starts surfing")
 T.eq(o.surfCalls[1][1], 7, "surf targets the blocked cell")
 
+-- A rightward water bump must use the movement direction, even if an input
+-- edge left the visible facing stale for this collision callback.
+game, o = newWorld({ player = { surfing = false, facing = "left" } })
+o.useSurfFieldMove = function(s)
+  return s.player.facing == "right" and "ok" or "no_water"
+end
+ctx = { mover = o.player, reason = "tile", map = waterMap(true),
+        dir = "right", toX = 7, toY = 9 }
+blockedStep(ctx)
+T.eq(#o.surfCalls, 1, "rightward water contact surfs despite stale facing")
+
 -- already surfing: no remount
 game, o = newWorld({ player = { surfing = true } })
 ctx = { mover = o.player, reason = "tile", map = waterMap(true),

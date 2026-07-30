@@ -4,13 +4,13 @@ local Tutor = {}
 
 Tutor.lessons = {
   { move = "BODY_SLAM", label = "BODY SLAM", trainer = "OPP_JJ_TRIAL_SLAM",
-    species = "SNORLAX", winText = "Strong shoulders.\nNow make them count." },
+    species = "SNORLAX", winText = "Strong shoulders.\nUse them well." },
   { move = "ROCK_SLIDE", label = "ROCK SLIDE", trainer = "OPP_JJ_TRIAL_ROCK",
-    species = "GOLEM", winText = "Good. Do not throw it\nwithout a reason." },
+    species = "GOLEM", winText = "Good work.\nThrow with care." },
   { move = "SLUDGE", label = "SLUDGE", trainer = "OPP_JJ_TRIAL_SLUDGE",
-    species = "MUK", winText = "Dirty work. You did\nnot flinch." },
+    species = "MUK", winText = "Dirty work.\nYou stood firm." },
   { move = "REST", label = "REST", trainer = "OPP_JJ_TRIAL_REST",
-    species = "SLOWBRO", winText = "Knowing when to stop\nis not weakness." },
+    species = "SLOWBRO", winText = "Rest has purpose.\nNot weakness." },
 }
 
 function Tutor.levelFor(mon)
