@@ -118,6 +118,22 @@ function ExpBar.geometry(wide, yOption)
   return g.x, g.w, g.y + nudge
 end
 
+-- Dramatic Shape Voxel Mod's 3D-BTL path keeps the engine's classic HUD
+-- geometry, but composites its player HUD band into a window-sized canvas
+-- whose right edge is the screen's right edge. Its live battle shot exposes
+-- the exact transform as pw, ly, and scale. Return nil for any other battle
+-- so the regular classic/wide geometry remains self-contained.
+function ExpBar.voxelGeometry(shot, yOption)
+  if type(shot) ~= "table" then return nil end
+  local pw, ly, scale = tonumber(shot.pw), tonumber(shot.ly),
+                        tonumber(shot.scale)
+  if not pw or not ly or not scale or pw <= 0 or scale <= 0 then return nil end
+  local x, w, y = ExpBar.geometry(false, yOption)
+  -- Voxel's player HUD band is the whole 160px classic surface, snapped so
+  -- its right edge touches the window's right edge.
+  return pw - 160 * scale + x * scale, w * scale, ly + y * scale, scale
+end
+
 -- Whether this battle is drawing the wide layout. Guarded rather than
 -- called outright: wideLayout is v0.1.31+, and on an older engine there
 -- is no wide layout to be in.

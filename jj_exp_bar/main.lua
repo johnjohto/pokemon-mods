@@ -86,18 +86,41 @@ return function(mod)
     local g = love.graphics
     local style = STYLES[mod.options:get("bar_style") or "ink"] or STYLES.ink
     local r, gr, b = style(mon)
-    local X, W, y = ExpBar.geometry(wide, mod.options:get("bar_y"))
+    local shot = battle.dramaticShapeShot
+    local X, W, y, scale = ExpBar.voxelGeometry(shot,
+                                                  mod.options:get("bar_y"))
+    local voxel = X ~= nil and shot.canvas ~= nil
+    if not voxel then
+      X, W, y = ExpBar.geometry(wide, mod.options:get("bar_y"))
+      scale = 1
+    end
     -- Gen 2 fills right to left: the fill is anchored at the right edge.
     -- During move selection the TYPE/PP panel box (0,8) 11x5 owns x<88 on
-    -- this row; clip the fill there instead of drawing across it
+    -- this row; clip the fill there instead of drawing across it. The Voxel
+    -- Mod moves only the HUD band, so that classic-canvas menu cannot overlap
+    -- the external canvas that owns its player HUD.
     local left = X + W - math.floor(W * bar.displayed + 0.5)
-    if not wide and battle.phase == "moveSelect" and left < 88 then left = 88 end
+    if not voxel and not wide and battle.phase == "moveSelect" and left < 88 then
+      left = 88
+    end
     local width = X + W - left
+    local height = H * scale
     g.push()
+    local priorCanvas
+    if voxel then
+      -- 3D-BTL composites the normal HUD into this full-window canvas before
+      -- the regular overlay hook runs. Join that same canvas, applying the
+      -- identical classic-to-window transform, rather than drawing an orphan
+      -- bar in the letterboxed 160x144 UI surface.
+      priorCanvas = g.getCanvas()
+      g.setCanvas(shot.canvas)
+      sx, sy = sx * scale, sy * scale
+    end
     g.translate(sx, sy)
     g.setColor(r, gr, b, 1)
-    if width > 0 then g.rectangle("fill", left, y, width, H) end
+    if width > 0 then g.rectangle("fill", left, y, width, height) end
     g.setColor(1, 1, 1, 1)
     g.pop()
+    if voxel then g.setCanvas(priorCanvas) end
   end)
 end

@@ -35,6 +35,12 @@ Older engines are unaffected: the mod asks whether the battle is wide
 before assuming it can be, so it keeps working on versions that have no
 widescreen layout at all.
 
+## Dramatic Shape Voxel Mod
+
+When using Dramatic Shape Voxel Mod's **3D-BTL** mode, the player HUD moves
+to the right edge of the full-window battle scene. EXP Bar v1.1.1 follows that
+HUD and scales with it, so it remains on the player status box.
+
 ## Install
 
 Download the `.zip` from the release and, **without unzipping it**, drag it

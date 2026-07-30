@@ -135,6 +135,31 @@ Runtime.call("battle.overlay", function() end, b0)
 T.eq(live.displayed, before, "a pushed screen hides the bar")
 topState = b0
 
+-- 3D-BTL snaps its HUD into a full-window canvas. The live overlay must draw
+-- the bar into that canvas at the snapped player-HUD position, not the
+-- letterboxed battle canvas' classic coordinates.
+local voxelCanvas = {}
+local voxelRects = {}
+local oldRectangle = love.graphics.rectangle
+love.graphics.rectangle = function(mode, x, y, w, h)
+  voxelRects[#voxelRects + 1] = {
+    mode = mode, x = x, y = y, w = w, h = h,
+    canvas = love.graphics.getCanvas(),
+  }
+end
+b0.dramaticShapeShot = { canvas = voxelCanvas, pw = 1920, ly = 108, scale = 6 }
+live.displayed, live.target = 0.5, 0.5
+Runtime.call("battle.overlay", function() end, b0)
+love.graphics.rectangle = oldRectangle
+b0.dramaticShapeShot = nil
+T.eq(#voxelRects, 1, "voxel HUD draws one EXP fill")
+T.eq(voxelRects[1].canvas, voxelCanvas,
+  "voxel HUD draws into the canvas that owns the moved player HUD")
+T.eq(voxelRects[1].x, 1641, "voxel HUD fill starts under the snapped HUD")
+T.eq(voxelRects[1].y, 648, "voxel HUD fill stays on the snapped border row")
+T.eq(voxelRects[1].w, 201, "voxel HUD fill keeps its scaled progress width")
+T.eq(voxelRects[1].h, 6, "voxel HUD fill keeps the scaled one-pixel height")
+
 -- ------- layout geometry (v0.1.31 BATTLE LAYOUT -> WIDE)
 
 -- isWide is guarded: v0.1.29 and earlier have no wideLayout at all, and
@@ -172,5 +197,19 @@ T.eq(select(3, ExpBar.geometry(true, nil)), wy,
 T.check(wx ~= cx or wy ~= cy, "the layouts draw in different places")
 -- wide must clear the classic surface entirely: 160 wide is all there is
 T.check(wx >= 160, "the wide bar is off the classic surface, as intended")
+
+-- Dramatic Shape Voxel Mod's 3D-BTL path renders the classic HUD into a
+-- window-sized canvas and snaps the player band to its right edge.  The EXP
+-- bar must join that canvas; drawing at classic coordinates leaves it behind
+-- in the centre-left of the letterboxed UI.
+local shot = { pw = 1920, ly = 108, scale = 6 }
+local vx, vw, vy = ExpBar.voxelGeometry(shot, 90)
+T.eq(vx, 1440, "voxel bar follows the player HUD to the window's right side")
+T.eq(vw, 402, "voxel bar preserves the classic width at the HUD scale")
+T.eq(vy, 648, "voxel bar follows the letterboxed HUD row")
+T.eq(select(3, ExpBar.voxelGeometry(shot, 89)), 642,
+  "GEN 2 remains one source pixel higher in the voxel HUD")
+T.eq(ExpBar.voxelGeometry(nil, 90), nil,
+  "no voxel shot leaves the normal layouts in charge")
 
 T.finish("jj_exp_bar")
