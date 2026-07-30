@@ -24,6 +24,9 @@ starts.
 
 ## Next
 
+- **Fuchsia Swamp** (`jj_fuchsia_swamp`) — an optional, Surf-gated Route 19 swamp quest with
+  a custom map, a post-quest rest point, and earned move-tutor
+  trials ([#1](https://github.com/johnjohto/pokemon-mods/issues/1)).
 - **More QoL mods** — grilled candidates: randomizer, overworld spawns,
   more informative FIGHT menu, bag/item storage sort, SELECT hotkey for
   key items. All feasible against the current upstream hooks except the
