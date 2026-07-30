@@ -6,6 +6,9 @@ progress, trainer battles, a rest point, and a repeatable reward loop. This
 guide explains those patterns so you can adapt them for a different optional
 area.
 
+For a line-by-line guide to NPC dialogue, start with
+[NPC_TEXT_GUIDE.md](NPC_TEXT_GUIDE.md).
+
 ## File-by-file tour
 
 Read the files in this order:
