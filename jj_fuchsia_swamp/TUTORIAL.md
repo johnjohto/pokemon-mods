@@ -154,13 +154,13 @@ compatible game build exists.
 
 Run the focused test while iterating:
 
-```powershell
+```
 luajit mods/jj_fuchsia_swamp/tests/jj_fuchsia_swamp_test.lua
 ```
 
 Then run the whole mod suite before release:
 
-```powershell
+```
 luajit tests/run_modkit.lua
 ```
 
@@ -181,16 +181,18 @@ starts Surf.
 
 ## Package only after the engine gate is clear
 
-The repository helper packages one mod and uploads its ZIP:
+From the repository root, package with the game repository's modkit:
 
-```bash
-tools/release.sh jj_fuchsia_swamp
+```
+python <game-repo>/tools/modkit.py pack <game-repo>/mods/jj_fuchsia_swamp -o <output>/jj_fuchsia_swamp-v0.1.0.zip
 ```
 
-On Windows without WSL, package with the game repository's modkit and upload
-the verified ZIP with `gh release create` instead. Include `README.md` for
-release notes and `DISCORD.md` for the announcement copy. Confirm that public
-documentation contains only the names and terms you intend to ship.
+Upload the verified ZIP with your GitHub release client, for example the
+cross-platform `gh` CLI. Include `README.md` for release notes and
+`DISCORD.md` for the announcement copy. Confirm that public documentation
+contains only the names and terms you intend to ship. The optional
+`tools/release.sh` helper automates those same steps where a POSIX shell is
+available; it is not required.
 
 ## A practical checklist for your own quest
 
