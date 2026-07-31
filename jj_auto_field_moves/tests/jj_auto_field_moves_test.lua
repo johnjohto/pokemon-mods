@@ -43,6 +43,10 @@ local function newWorld(over)
     end,
     partyKnows = function(s) return s.knower end,
     npcAtCell = function(s) return s.npc end,
+    setDark = function(s, on)
+      s.dark = on
+      s.setDarkCalls = (s.setDarkCalls or 0) + 1
+    end,
   }
   game.overworld = o
   for k, v in pairs(over or {}) do o[k] = v end
@@ -174,6 +178,8 @@ game, o = newWorld({ dark = true, knower = { species = "ABRA" } })
 Runtime.emit("map.entered", { mapId = "ROCK_TUNNEL_1F" })
 T.check(not o.dark, "entering the dark cave lights it")
 T.check(game.save.flashLit, "the lit state persists on the save")
+T.eq(o.setDarkCalls, 1,
+  "FLASH clears the engine-managed dark rendering state")
 T.check(getmetatable(game.stack:top()) ~= TextBox,
   "the FLASH shows no textbox")
 

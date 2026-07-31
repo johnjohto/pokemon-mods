@@ -100,7 +100,9 @@ return function(mod)
   mod.events:on("map.entered", function()
     local o = ow()
     if not o or not o.dark or not knows("FLASH") then return end
-    o.dark = false
+    -- setDark also refreshes the palette/atlas state used to render dark
+    -- caves; assigning the flag alone leaves the cave visually dark.
+    o:setDark(false)
     game.save.flashLit = true
     game.stack:push(require("src.render.Transition").whiteFlash(game))
     mod.log:info("auto FLASH lit %s", tostring(o.map and o.map.id))
