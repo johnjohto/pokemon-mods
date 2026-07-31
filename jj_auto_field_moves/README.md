@@ -11,6 +11,11 @@ and white blink):
 
 FLY stays in the party menu: it has no contact trigger.
 
+## What's new in v1.1.3
+
+- Fixed FLASH in dark caves: it now clears the engine-managed cave lighting
+  as well as saving the lit state.
+
 All the normal rules still apply: you need a pokémon with the move and
 the badge, and special cases like the Cycling Road still refuse. With
 **jj_hm_field_unlock** installed, the wider rule (can learn + HM owned +

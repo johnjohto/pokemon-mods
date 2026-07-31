@@ -10,10 +10,12 @@ Field moves fire on contact. No menus, no textboxes: the move just happens.
 
 Every normal rule still applies: you need the move (or **HM Field Unlock**), the badge, and special cases like the Cycling Road still say no.
 
-`jj_auto_field_moves` v1.1.2
+v1.1.3 fixes FLASH in dark caves: entering one now clears the cave's rendered darkness as well as recording the lit state.
+
+`jj_auto_field_moves` v1.1.3
 
 
 ## Download
-:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_auto_field_moves-v1.1.2
+:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_auto_field_moves-v1.1.3
 
 :inbox_tray: Don't unzip it — drag the `.zip` onto the game's start screen, or use **Import mod .zip** on the **MODS** tab.
