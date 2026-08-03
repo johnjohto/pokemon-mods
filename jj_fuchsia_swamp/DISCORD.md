@@ -1,20 +1,14 @@
 **Fuchsia Swamp**
 
-An optional swamp quest reached through a hidden Surf cove on Route 19.
-
-Requires gen1recomp v0.1.39 or newer.
-
-:surfer: Explore separated, encounter-filled clearings across open water
-:construction: Drive out three reclamation crews threatening the marsh
-:crossed_swords: Face the swamp's host in a four-Pokémon battle
-:house: Rest at the hut or return to Fuchsia once the quest is complete
-:sparkles: Earn repeatable Body Slam, Rock Slide, Sludge, and Rest lessons for any Pokémon through solo trials
-:books: Includes a platform-neutral tutorial that walks new modders through every Lua file, map connections, quest state, battles, tutoring, tests, and release checks
+Requires gen1recomp v0.1.39 or newer. Surf through the hidden Route 19 cove,
+clear three reclamation crews, and face the swamp host. The hut then heals the
+party, returns you to Fuchsia, and offers repeatable solo lessons for Body
+Slam, Rock Slide, Sludge, and Rest.
 
 `jj_fuchsia_swamp` v1.0.0
 
-## Download
+Download: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_fuchsia_swamp-v1.0.0
 
-:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_fuchsia_swamp-v1.0.0
-
-:inbox_tray: Don't unzip it — drag the `.zip` onto the game's start screen, or use **Import mod .zip** on the **MODS** tab.
+Keep the `.zip` intact. Drag it onto the start screen or use **Import mod .zip**
+on the **MODS** tab. See [README.md](README.md) for route, battle, save, and
+tutor details. Contributors can start with [TUTORIAL.md](TUTORIAL.md).

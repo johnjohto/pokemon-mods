@@ -1,18 +1,15 @@
 **HM Field Unlock**
 
-HMs work in the field without being taught. If your pokémon *can learn* the move, owning the HM and the badge is enough.
+Use Cut, Fly, Surf, Strength, and Flash in the field without teaching the move.
+You still need a party species that can learn it, the HM in your Bag or PC
+storage, and its badge. Battle use still requires learning the move.
 
-:scissors: Cut, :bird: Fly, :surfer: Surf, :muscle: Strength, :flashlight: Flash
-:handbag: HM in your bag **or** your PC box
-:eye: Shows up in the party menu like a normal field move, so you can see it working
-:crossed_swords: Battle is unchanged: using the move in a fight still requires teaching it
-
-Pairs beautifully with **Auto Field Moves** for a fully menu-free overworld.
+Pairs with **Auto Field Moves** for contact-based Surf, Cut, Strength, and Flash.
 
 `jj_hm_field_unlock` v1.0.0
 
+Download: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_hm_field_unlock-v1.0.0
 
-## Download
-:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_hm_field_unlock-v1.0.0
-
-:inbox_tray: Don't unzip it — drag the `.zip` onto the game's start screen, or use **Import mod .zip** on the **MODS** tab.
+Keep the `.zip` intact. Drag it onto the start screen or use **Import mod .zip**
+on the **MODS** tab. See [README.md](README.md) for the badge table and full
+eligibility rules.

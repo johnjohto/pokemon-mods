@@ -1,61 +1,63 @@
 # EXP Bar
 
-Shows a Gen 2-style experience bar under the player HP bar in battle, so
-you can see your active Pokémon's progress toward its next level without
-opening the summary screen.
+EXP Bar draws a one-pixel Gen 2-style experience bar under the active
+Pokémon's HP bar during battle. It shows progress toward that Pokémon's next
+level without opening the Summary screen.
 
-- The bar fills as your active battler gains EXP, wrapping through
-  level-ups like Gold/Silver.
-- Battle start and switch-ins snap to the current value; only EXP gains
-  animate.
-- EXP.ALL shares to the rest of the party don't move the bar — it tracks
-  the active battler only, like Gen 2.
-- Level 100 Pokémon show a full bar. Hidden anywhere the player HUD is
-  hidden (Safari Zone, trainer intros).
+Version: 1.1.1.
+
+## Prerequisites and installation
+
+Follow the [root installation guide](../README.md#before-you-install-a-mod).
+Import the `jj_exp_bar` release `.zip` through the **MODS** tab and enable it.
+There are no save prerequisites or setup steps. The bar is hidden whenever the
+player HUD is hidden, including Safari Zone scenes and trainer introductions.
+
+## How the bar behaves
+
+At battle start and when you switch Pokémon, the bar snaps to the active
+Pokémon's current experience. After that Pokémon gains experience, the fill
+animates to the new value. A level-up wraps the fill through the next level,
+matching the way a Gen 2 bar behaves. A level 100 Pokémon shows a full bar.
+
+The bar tracks the active battler only. EXP.ALL shares sent to other party
+members do not move the bar while they are not active, and a switch updates the
+bar to the new active Pokémon.
 
 ## Options
 
-An **EXP BAR** row in the options menu picks the fill style: **INK**
-(default, matches every palette), **GEN 2 BLUE**, or **HP MATCH** (follows
-the HP bar's green/yellow/red thresholds). **EXP BAR POS** picks the
-height: **BORDER** (default, rides the HUD's bottom border row) or
-**GEN 2** (one pixel higher).
+| Option | Default | Details |
+| --- | --- | --- |
+| EXP BAR | INK | **INK** uses the HUD's normal ink. **GEN 2 BLUE** uses blue. **HP MATCH** uses green, yellow, or red based on the active Pokémon's HP thresholds. |
+| EXP BAR POS | BORDER | **BORDER** draws on the HUD's bottom border row. **GEN 2** places it one pixel higher. |
 
-## Battle layouts
+## Battle layouts and 3D-BTL
 
-Both of the engine's battle layouts are supported. In the classic
-160×144 one the bar rides the player HUD's underline row, as it always
-has. In the widescreen layout (**OPTION → BATTLE LAYOUT → WIDE**, added
-in gen1recomp v0.1.31) the player's status is a box on the lower right
-whose three interior rows are all taken — name, HP bar, HP numbers — so
-the bar sits just inside that box's bottom frame row, spanning its inner
-width. **EXP BAR POS** still shifts it a pixel either way.
+The classic 160 by 144 layout places the bar under the player HUD underline.
+The widescreen layout, enabled with **OPTION → BATTLE LAYOUT → WIDE** in game
+builds that provide it, places the bar inside the lower-right player status
+box. The position option still shifts it by one pixel.
 
-Older engines are unaffected: the mod asks whether the battle is wide
-before assuming it can be, so it keeps working on versions that have no
-widescreen layout at all.
+When Dramatic Shape Voxel Mod's **3D-BTL** mode is active, EXP Bar follows the
+player HUD at the right edge of the 3D battle scene and scales with that HUD.
 
-## Dramatic Shape Voxel Mod
+The bar hides during the Mimic selection panel and avoids the move-selection
+panel where the panel would cover it. It also follows the classic battle HUD
+shake.
 
-When using Dramatic Shape Voxel Mod's **3D-BTL** mode, the player HUD moves
-to the right edge of the full-window battle scene. EXP Bar v1.1.1 follows that
-HUD and scales with it, so it remains on the player status box.
+## Troubleshooting
 
-## Install
+If the bar is not visible, check that the mod is enabled and that the current
+screen is an ordinary battle with the player HUD showing. It will not appear in
+the hidden-HUD scenes listed above. If it appears in the wrong style or height,
+open the mod options and check EXP BAR and EXP BAR POS.
 
-Download the `.zip` from the release and, **without unzipping it**, drag it
-onto the game's start screen — or open the **MODS** tab there and press
-*Import mod .zip*. It installs itself and comes up enabled.
+## For contributors
 
-Unzipping it next to `gen1recomp.exe` does not work: a released build is not
-portable, so the game never reads that folder and the mod silently never
-appears. See the [root README](../README.md#install) for the folder to use
-if you would rather place it by hand.
-
-## Develop
-
-Run the headless tests from the game repo root:
+From the game repository root:
 
 ```
 luajit mods/jj_exp_bar/tests/jj_exp_bar_test.lua
 ```
+
+Then run `luajit tests/run_modkit.lua` before release.

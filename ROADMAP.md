@@ -1,42 +1,36 @@
 # Roadmap
 
-Mod ideas, roughly in the order we plan to build them. Each becomes a
-`jj_*` folder with its own manifest, readme, and headless tests when work
-starts.
+This list tracks the repository's mod ideas. Every shipped mod has its own
+folder, manifest, player guide, Discord announcement copy, and headless tests.
 
 ## Done
 
-- **jj_repel_prompt** — asks "Use another?" when a Repel wears off.
-- **jj_alternate_start** — begin a new game tutorial-free at any town,
-  city, or flyable location.
-- **jj_hm_field_unlock** — HMs work in the field without being taught:
-  a party pokémon that can learn the move, the HM in the bag or PC box,
-  and the badge are enough. Battle still requires teaching.
-- **jj_auto_field_moves** — field moves fire on contact: water surfs,
-  cuttable tiles cut, boulders activate STRENGTH, dark caves FLASH.
-  FLY stays menu-only; composes with jj_hm_field_unlock automatically.
-- **jj_exp_bar** — Gen 2-style EXP bar under the player HP bar in battle:
-  fills on exp gain, wraps through level-ups, three fill styles.
-- **jj_caught_indicator** — Gen 2-style pokeball icon next to a wild
-  enemy's name when its species is already owned in the dex.
-- **jj_running_shoes** — hold B to run: half the frames per tile on foot,
-  with the leg cadence doubled to match. Bike and surf keep their speed.
+- **jj_repel_prompt**: asks "Use another?" when a Repel expires.
+- **jj_alternate_start**: starts a new game in a selected town or city while
+  preserving a classic Pallet Town option.
+- **jj_hm_field_unlock**: permits field HM use when an eligible party Pokémon,
+  the HM, and its badge are available. Battle use still requires learning the
+  move.
+- **jj_auto_field_moves**: triggers Surf, Cut, Strength, and Flash by contact.
+  Fly remains a party-menu action and the mod works with HM Field Unlock.
+- **jj_exp_bar**: draws a Gen 2-style active-battler experience bar.
+- **jj_caught_indicator**: marks already-caught wild species in battle.
+- **jj_running_shoes**: adds configurable foot, bicycle, and Surf movement
+  speed without changing tile-based game counters.
+- **jj_fuchsia_swamp**: adds an optional Route 19 Surf quest, rest hut, and
+  repeatable single-Pokémon move-tutor trials.
 
 ## Next
 
-- **Fuchsia Swamp** (`jj_fuchsia_swamp`) — an optional, Surf-gated Route 19 swamp quest with
-  a custom map, a post-quest rest point, and earned move-tutor
-  trials ([#1](https://github.com/johnjohto/pokemon-mods/issues/1)).
-- **More QoL mods** — grilled candidates: randomizer, overworld spawns,
-  more informative FIGHT menu, bag/item storage sort, SELECT hotkey for
-  key items. All feasible against the current upstream hooks except the
-  SELECT hotkey, which would need a runtime patch or an upstream PR.
+- **More quality-of-life mods**: randomizer, overworld spawns, a more
+  informative FIGHT menu, bag and item-storage sorting, and a SELECT hotkey
+  for key items. The current upstream hooks can support all but the SELECT
+  hotkey, which would need a runtime patch or an upstream change.
 
 ## Later
 
-- **Upstream eligibility hook** — filed as PR #310. If it lands,
+- **Upstream eligibility hook**: filed as PR #310. If it lands,
   jj_hm_field_unlock can drop its runtime patch.
-- **Upstream walk-cadence hook** — `movement.speed` sets a step's length
-  but nothing exposes the animation clock, so jj_running_shoes patches
-  Player:update to keep the legs in step. A companion hook there would
-  let it drop the patch.
+- **Upstream walk-cadence hook**: `movement.speed` sets a step length but does
+  not expose the animation clock. jj_running_shoes patches `Player:update` to
+  keep the legs in step; a companion hook would remove that patch.

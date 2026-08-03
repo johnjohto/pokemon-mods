@@ -1,22 +1,15 @@
 **Auto Field Moves**
 
-Field moves fire on contact. No menus, no textboxes: the move just happens.
+Field moves fire when you make contact: water starts Surf, cuttable tiles use
+Cut, boulders activate Strength, and entering a dark cave uses Flash. Fly stays
+in the party menu. The normal move, badge, and location checks still apply.
 
-:surfer: Walk into water to surf straight on
-:scissors: Walk into trees, gym plants, and tall grass to cut them down
-:rock: Walk into boulders to activate Strength, then push as usual
-:flashlight: Step into a dark cave to light it with Flash
-:bird: Fly stays in the party menu, where it belongs
-
-Every normal rule still applies: you need the move (or **HM Field Unlock**), the badge, and special cases like the Cycling Road still say no.
-
-v1.1.4 fixes a crash when entering a dark cave with FLASH available. FLASH
-still clears the cave's rendered darkness and records the lit state.
+Install **HM Field Unlock** as well if you want eligible species to use an HM
+without learning it.
 
 `jj_auto_field_moves` v1.1.4
 
+Download: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_auto_field_moves-v1.1.4
 
-## Download
-:link: https://github.com/johnjohto/pokemon-mods/releases/tag/jj_auto_field_moves-v1.1.4
-
-:inbox_tray: Don't unzip it — drag the `.zip` onto the game's start screen, or use **Import mod .zip** on the **MODS** tab.
+Keep the `.zip` intact. Drag it onto the start screen or use **Import mod .zip**
+on the **MODS** tab. See [README.md](README.md) for prerequisites and limits.

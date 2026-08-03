@@ -1,46 +1,85 @@
 # Alternate Start
 
-Begin a new game in any of nine towns instead of Pallet Town, with the
-tutorial quests already done — and, if you want, with the story intact.
+Alternate Start changes the end of Oak's opening speech for new games. You can
+begin in one of eight towns or at Indigo Plateau instead of Pallet Town, or
+choose **PALLET (CLASSIC)** to leave the opening completely vanilla.
 
-Oak's speech ends with one question: **where to?** What happens next
-depends on the STORY BEATS option (on by default):
+Version: 2.0.1.
 
-- **Story beats on:** Oak and Blue come to see you off at your new
-  town's Pokémon Center. Pick your starter from Oak's balls, fight Blue
-  and his counter-pick right there, and get the Pokédex from Oak
-  himself. Blue keeps showing up all game: his ambushes are re-gated on
-  gym badges (Route 22 after 1, Cerulean after 2, S.S. Anne after 3,
-  Pokémon Tower after 4, Silph Co. after 6), so they happen in order
-  even without the Pallet tutorial.
-- **Story beats off:** the quick start. Pick a starter in the speech
-  and simply appear in your new town, everything already in hand.
+## Prerequisites and installation
 
-Either way: Pokédex and parcel quest count as done, the Viridian old
-man is off the road, blackouts and escape ropes return to your town's
-Pokémon Center, and every offered town has a guaranteed way out
-(Fuchsia and Cinnabar would softlock a fresh save, so they're not
-offered; a Saffron start opens the thirsty guards' gates).
+Follow the [root installation guide](../README.md#before-you-install-a-mod).
+Import the `jj_alternate_start` release `.zip` through the **MODS** tab and
+confirm that it is enabled before creating the save. The mod only changes a
+new game started while it is enabled. It does not move an existing save to a
+new town.
 
-Pick **PALLET (CLASSIC)** and none of this happens: the game is
-completely vanilla.
+Choose this mod before investing in a new run. An alternate start marks several
+opening events complete and changes the save's return point, so make a backup
+first if you may want to preserve an untouched opening save.
 
-## Install
+## Start a game
 
-Download the `.zip` from the release and, **without unzipping it**, drag it
-onto the game's start screen — or open the **MODS** tab there and press
-*Import mod .zip*. It installs itself and comes up enabled. Only affects new
-games started while the mod is enabled.
+1. Start a new game and complete Oak's normal opening speech.
+2. Open the **STORY BEATS** option from the game's mod options if you want to
+   change it. It is on by default.
+3. Choose a hometown from the list. Pressing B at this list chooses
+   **PALLET (CLASSIC)**.
+4. Finish the opening. If you chose an alternate town, the game warps you to
+   that town's Pokémon Center area.
 
-Unzipping it next to `gen1recomp.exe` does not work: a released build is not
-portable, so the game never reads that folder and the mod silently never
-appears. See the [root README](../README.md#install) for the folder to use
-if you would rather place it by hand.
+The available alternate starts are Viridian City, Pewter City, Cerulean City,
+Lavender Town, Vermilion City, Celadon City, Saffron City, and Indigo Plateau.
+Fuchsia City and Cinnabar Island are not offered because a fresh save could not
+leave them without access that it does not yet have.
 
-## Develop
+## Choose the story style
 
-Run the headless tests from the game repo root:
+**STORY BEATS** controls how you receive the starter and whether Blue's early
+story scenes are preserved.
+
+With **STORY BEATS** on, Oak and Blue meet you at the new town's Pokémon
+Center. Choose Bulbasaur, Charmander, or Squirtle from Oak's Poké Balls, then
+fight Blue and receive the Pokédex. Blue's later encounters are held until you
+have enough badges: Route 22 after one, Cerulean after two, S.S. Anne after
+three, Pokémon Tower after four, and Silph Co. after six.
+
+With **STORY BEATS** off, choose Bulbasaur, Charmander, or Squirtle during
+Oak's speech. You arrive at the selected town with the starter and opening
+progress already applied. This skips the Oak and Blue visit scene.
+
+In either alternate-start mode, the starter is level 5, has no nickname prompt,
+and the game records the Pokédex and parcel sequence as complete. The Viridian
+old man is moved out of the north path. Blackouts and Escape Ropes return you
+to the chosen town's Pokémon Center. A Saffron start also opens the thirsty
+guard gates so you can leave the city.
+
+## Classic start and save behavior
+
+Selecting **PALLET (CLASSIC)** changes nothing. It does not grant a starter,
+set alternate-start flags, or add the new story scenes. Existing saves that did
+not begin with this mod are also left alone by the Blue encounter changes.
+
+If you black out during the Oak and Blue visit scene after choosing a starter,
+the mod cleans up the scene rather than starting it again. Continue the save
+normally after returning to the town.
+
+## Troubleshooting
+
+If you do not see the hometown question, verify that the mod was enabled before
+starting the new game. Loading an old save does not replay Oak's speech. If you
+chose Pallet Town, that is the explicit vanilla option. If a start town seems
+unavailable, it is not a hidden choice; the mod excludes starts that could
+strand a fresh save.
+
+## For contributors
+
+From the game repository root:
 
 ```
 luajit mods/jj_alternate_start/tests/jj_alternate_start_test.lua
 ```
+
+See [the open-world blocker audit](docs/gen1-openworld-blocker-audit.md) for
+the design notes behind the safe start locations. Run `luajit tests/run_modkit.lua`
+before release.

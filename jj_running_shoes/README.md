@@ -1,75 +1,69 @@
 # Running Shoes
 
-Hold **B** while you walk and the player runs: a tile takes half the
-frames, and the legs cycle twice as fast to match, so the speed reads as
-running rather than as the world scrolling faster.
+Running Shoes makes overworld movement faster without speeding up systems that
+count completed tiles. At the default setting, hold B while walking to cross a
+tile in half the normal frames. Wild encounters, poison damage, daycare
+experience, and the Repel counter still advance once per tile.
 
-- On foot by default. The bicycle and the water each keep their vanilla
-  speed unless you ask for more (see **BIKE SPEED** and **SURF SPEED**).
-- Nothing else changes pace. Wild encounters, poison damage, daycare EXP
-  and the Repel counter all tick once per tile, so running covers ground
-  faster without shifting a single rate.
-- Ledge hops keep their vanilla arc, and scripted movement — the escort
-  out of Pallet, Oak's lab, every cutscene — never runs.
-- B stays free everywhere it already did: in the overworld vanilla only
-  reads the d-pad, A and START, so nothing is shadowed.
+Version: 1.1.1.
+
+## Prerequisites and installation
+
+Follow the [root installation guide](../README.md#before-you-install-a-mod).
+Import the `jj_running_shoes` release `.zip` through the **MODS** tab, confirm
+that it is enabled, and load or start a save. You can use it with an existing
+save. Open the game's mod options to adjust its settings.
+
+## Basic use
+
+The default is **RUN SPEED: 2X** and **RUN BUTTON: HOLD B**. In the overworld,
+hold B and a direction to run on foot. Release B to walk normally. The mod does
+not make scripted movement run, so cutscenes and escorted movement keep their
+usual pace. Ledge hops also keep their normal movement.
+
+By default, the bicycle and Surf remain at vanilla speed. Configure their rows
+separately if you want faster travel in those modes.
 
 ## Options
 
-Three rows in the options menu.
+| Option | Choices | Meaning |
+| --- | --- | --- |
+| RUN SPEED | 2X, 1.5X, OFF | Sets the on-foot multiplier. At 2X, foot travel matches the bicycle's usual step length. |
+| RUN BUTTON | HOLD B, TOGGLE, ALWAYS | Chooses how faster movement begins. |
+| BIKE SPEED | VANILLA, MATCH RUN, 1.5X, 2X | Sets the bicycle multiplier when the chosen trigger is active. |
+| SURF SPEED | VANILLA, MATCH RUN, 1.5X, 2X | Sets the Surf multiplier when the chosen trigger is active. |
 
-**RUN SPEED** picks the pace on foot: **2X** (default), **1.5X**, or
-**OFF**. Note that 2X is exactly bicycle speed — both are 8 frames a tile
-— so at the default the shoes catch the bike. **1.5X** leaves the bike
-ahead.
+With **HOLD B**, keep B held to use an eligible faster setting. With
+**TOGGLE**, tap B in the free-roam overworld once to turn faster movement on
+and again to turn it off. The toggle is not saved, so loading a save returns it
+to off. Tapping B in a menu or battle cannot flip it. With **ALWAYS**, every
+eligible movement mode uses its configured multiplier without holding B.
 
-**RUN BUTTON** picks how it triggers: **HOLD B** (default), **TOGGLE**, or
-**ALWAYS**. **TOGGLE** latches — tap B once to start running and again to
-stop, no holding — and it applies to the bicycle and the water too,
-wherever those rows ask for more than vanilla. The latch is deliberately
-not saved: a run state that survived a reload would have you moving at
-double speed with no memory of asking for it.
+**MATCH RUN** uses the selected on-foot multiplier. It is useful for the
+bicycle because it preserves its two-to-one advantage over a runner. Surf is
+checked before bicycle state, so a step on water follows **SURF SPEED**.
 
-Tapping B in a menu or a battle cannot flip the latch. The engine only
-updates the state on top of the stack, so the overworld — where the latch
-lives — is not running while a menu is open, and the B that backs out of
-one never reaches it.
+## What the mod does not change
 
-**BIKE SPEED** hurries the bicycle the same way: **VANILLA** (default,
-untouched), **MATCH RUN**, **1.5X**, or **2X**. **MATCH RUN** hands the
-bike whatever multiplier the feet have, so it keeps its exact 2:1 lead
-over a runner instead of being caught by one. The bike answers to the
-same trigger as the feet — on **HOLD B** it stays vanilla until you hold
-B, and the 2:1 lead holds whether you are holding it or not; on
-**ALWAYS** the faster bike is permanent.
+The game still handles each completed tile normally. Faster movement does not
+make wild encounters rarer, alter poison or Repel counting, or accelerate
+daycare experience. The visual walk cycle is accelerated with the movement so
+the sprite does not slide between tiles.
 
-**SURF SPEED** does the same for crossing water, with the same four
-settings and the same default of **VANILLA**. It is a row of its own
-because wanting to cross the sea faster and wanting to sprint on land are
-different wishes. Surfing is read before the bicycle, so a step on the
-water always takes this row's setting whatever you were riding when you
-stepped in.
+## Troubleshooting
 
-However it is set, a step's animation is paid its unhurried length in
-ticks, so the leg cadence rises by exactly as much as the speed does: a
-run is one full cycle per tile like a walk, and a hurried bike keeps the
-half cycle per tile the engine gave it, pedalled faster.
+If you are not moving faster, check **RUN SPEED** and whether your selected
+trigger is active. **OFF** and **VANILLA** deliberately preserve normal speed.
+For bicycle or Surf travel, change the matching row as well; changing RUN SPEED
+alone affects only foot travel. Faster movement is not expected during a menu,
+battle, or scripted scene.
 
-## Install
+## For contributors
 
-Download the `.zip` from the release and, **without unzipping it**, drag it
-onto the game's start screen — or open the **MODS** tab there and press
-*Import mod .zip*. It installs itself and comes up enabled.
-
-Unzipping it next to `gen1recomp.exe` does not work: a released build is not
-portable, so the game never reads that folder and the mod silently never
-appears. See the [root README](../README.md#install) for the folder to use
-if you would rather place it by hand.
-
-## Develop
-
-Run the headless tests from the game repo root:
+From the game repository root:
 
 ```
 luajit mods/jj_running_shoes/tests/jj_running_shoes_test.lua
 ```
+
+Then run `luajit tests/run_modkit.lua` before release.
