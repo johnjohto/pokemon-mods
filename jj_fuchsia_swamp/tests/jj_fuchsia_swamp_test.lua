@@ -13,7 +13,6 @@ local MapScripts = require("src.script.MapScripts")
 local ScriptRunner = require("src.script.ScriptRunner")
 local Pokemon = require("src.pokemon.Pokemon")
 local BattleState = require("src.battle.BattleState")
-local Version = require("src.core.Version")
 local Tutor = require("mods.jj_fuchsia_swamp.tutor")
 local PaletteFX = require("src.render.PaletteFX")
 local TextBox = require("src.render.TextBox")
@@ -22,15 +21,12 @@ local Font = require("src.render.Font")
 Data:load()
 Font.load(Data)
 -- The portrait/palette registry fields this mod uses shipped in v0.1.39.
--- Working trees advertise 0.0.0-dev, so exercise the production loader at
--- the minimum supported shipped version and restore the shared value after.
-local engineVersion = Version.engine
-Version.engine = "0.1.39"
+-- The manifest also names the source tree's 0.0.0-dev placeholder so normal
+-- development boots exercise the same loader path as the release build.
 local run = T.sdk.loadMod("mods/jj_fuchsia_swamp", { data = Data })
-Version.engine = engineVersion
 T.eq(#run.errors, 0, "loads clean (" .. tostring(run.errors[1]) .. ")")
-T.eq(run.mod.manifest.game_version, ">=0.1.39 <2.0.0",
-  "the mod refuses engines without custom trainer portrait support")
+T.eq(run.mod.manifest.game_version, ">=0.1.39 <2.0.0 || =0.0.0-dev",
+  "the mod accepts the source placeholder but refuses unsupported releases")
 
 local MAP = "JJ_SHREK_SWAMP"
 local HUT = "JJ_SHREK_HUT"

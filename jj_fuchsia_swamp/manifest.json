@@ -3,7 +3,7 @@
   "name": "Fuchsia Swamp",
   "version": "1.0.0",
   "entry": "main.lua",
-  "game_version": ">=0.1.39 <2.0.0",
+  "game_version": ">=0.1.39 <2.0.0 || =0.0.0-dev",
   "category": "CONTENT",
   "permissions": ["engine_internals"],
   "description": "An optional swamp quest beyond a hidden Route 19 cove."
