@@ -60,6 +60,9 @@ check LAST BALL and whether the relevant catch occurred after installation.
 
 ## For contributors
 
+Read [LUA_GUIDE.md](LUA_GUIDE.md) for the pure decision module, overlay drawing,
+capture-ball save data, layout guards, and test doubles.
+
 From the game repository root:
 
 ```

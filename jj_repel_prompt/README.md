@@ -44,6 +44,9 @@ the mod itself is not listed.
 
 ## For contributors
 
+Read [LUA_GUIDE.md](LUA_GUIDE.md) for the two-event handshake, textbox callback,
+item-effect path, and headless test setup.
+
 Run the focused test from the game repository root:
 
 ```

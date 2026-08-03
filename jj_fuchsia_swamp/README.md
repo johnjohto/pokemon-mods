@@ -79,6 +79,9 @@ changing an existing NPC's text after preparing local generated game data.
 
 ## For contributors
 
+Read [LUA_GUIDE.md](LUA_GUIDE.md) for the map, quest state, battles, custom
+commands, tutor, save migration, and tests.
+
 From the game repository root:
 
 ```

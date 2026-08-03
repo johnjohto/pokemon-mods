@@ -54,6 +54,9 @@ open the mod options and check EXP BAR and EXP BAR POS.
 
 ## For contributors
 
+Read [LUA_GUIDE.md](LUA_GUIDE.md) for the progress state machine, level-up
+animation, HUD geometry, optional layouts, and tests.
+
 From the game repository root:
 
 ```

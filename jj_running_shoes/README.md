@@ -60,6 +60,9 @@ battle, or scripted scene.
 
 ## For contributors
 
+Read [LUA_GUIDE.md](LUA_GUIDE.md) for the pure movement policy, hook chaining,
+toggle latch, animation-clock patch, and test cases.
+
 From the game repository root:
 
 ```

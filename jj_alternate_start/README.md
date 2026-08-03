@@ -74,6 +74,9 @@ strand a fresh save.
 
 ## For contributors
 
+Read [LUA_GUIDE.md](LUA_GUIDE.md) before editing. It explains the speech hook,
+save preparation, rival gates, scene stages, and safe extension points.
+
 From the game repository root:
 
 ```

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a beginner-focused `LUA_GUIDE.md` covering every Lua file and test.
 - Expanded the player guide with prerequisites, contact-action steps,
   limitations, HM Field Unlock interaction, and troubleshooting. No gameplay
   behavior changed.

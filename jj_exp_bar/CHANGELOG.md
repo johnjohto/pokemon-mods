@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a beginner-focused `LUA_GUIDE.md` covering every Lua file and test.
 - Expanded the player guide with prerequisites, animation rules, options,
   layout behavior, 3D-BTL support, and troubleshooting. No gameplay behavior
   changed.

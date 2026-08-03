@@ -89,6 +89,11 @@ local game source checkout with its own prerequisites installed, including the
 through the base game's documented ROM-import workflow before you can run the
 game from source.
 
+Start with the [Lua development guides](LUA_GUIDES.md), then open the
+`LUA_GUIDE.md` inside the mod you want to change. Those guides explain every
+Lua source file and test in this repository for readers who are new to Lua and
+the game's mod API.
+
 Link a mod into the game checkout's `mods/` directory. On Windows, from the
 game repository root, a directory junction looks like this:
 

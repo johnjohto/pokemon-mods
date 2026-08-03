@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a beginner-focused `LUA_GUIDE.md` covering every Lua file and test.
 - Expanded the player guide with installation, controls, option definitions,
   unchanged game systems, and troubleshooting. No gameplay behavior changed.
 

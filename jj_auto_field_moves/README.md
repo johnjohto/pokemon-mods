@@ -50,6 +50,9 @@ HM Field Unlock, also check its HM, badge, and learnability requirements.
 
 ## For contributors
 
+Read [LUA_GUIDE.md](LUA_GUIDE.md) for collision hooks, engine continuations,
+map-entry lighting, and regression tests.
+
 From the game repository root:
 
 ```

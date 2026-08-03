@@ -58,6 +58,9 @@ member can use it.
 
 ## For contributors
 
+Read [LUA_GUIDE.md](LUA_GUIDE.md) for the HM lookup, eligibility rule, party
+submenu hook, sibling-mod export, and focused tests.
+
 From the game repository root:
 
 ```
