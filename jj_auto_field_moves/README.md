@@ -11,10 +11,11 @@ and white blink):
 
 FLY stays in the party menu: it has no contact trigger.
 
-## What's new in v1.1.3
+## What's new in v1.1.4
 
-- Fixed FLASH in dark caves: it now clears the engine-managed cave lighting
-  as well as saving the lit state.
+- Fixed a crash when entering a dark cave with FLASH available.
+- FLASH still clears the engine-managed cave lighting and preserves the lit
+  state across Rock Tunnel's floors.
 
 All the normal rules still apply: you need a pokémon with the move and
 the badge, and special cases like the Cycling Road still refuse. With

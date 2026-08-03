@@ -100,10 +100,13 @@ return function(mod)
   mod.events:on("map.entered", function()
     local o = ow()
     if not o or not o.dark or not knows("FLASH") then return end
+    -- Record this first. setDark may rebuild the map's ADVANCED atlas via
+    -- reloadMap(), which emits map.entered again; the nested entry must see
+    -- FLASH as active rather than starting another activation recursively.
+    game.save.flashLit = true
     -- setDark also refreshes the palette/atlas state used to render dark
     -- caves; assigning the flag alone leaves the cave visually dark.
     o:setDark(false)
-    game.save.flashLit = true
     game.stack:push(require("src.render.Transition").whiteFlash(game))
     mod.log:info("auto FLASH lit %s", tostring(o.map and o.map.id))
   end)

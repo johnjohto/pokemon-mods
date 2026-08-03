@@ -183,6 +183,29 @@ T.eq(o.setDarkCalls, 1,
 T.check(getmetatable(game.stack:top()) ~= TextBox,
   "the FLASH shows no textbox")
 
+-- setDark rebuilds an ADVANCED atlas through reloadMap(), which emits
+-- map.entered again.  That nested entry must see flashLit already recorded;
+-- otherwise it starts another FLASH activation and the real game recurses
+-- until it crashes while crossing the cave entrance.
+game, o = newWorld({ dark = true, knower = { species = "ABRA" } })
+local reentered, setDarkCalls = false, 0
+o.setDark = function(s, on)
+  s.dark = on
+  setDarkCalls = setDarkCalls + 1
+  if not reentered then
+    reentered = true
+    -- The map reload settles its initial darkness from flashLit before its
+    -- own map.entered hook runs, just as OverworldState:setMap does.
+    s.dark = not game.save.flashLit
+    Runtime.emit("map.entered", { mapId = "ROCK_TUNNEL_1F", via = "reload" })
+  end
+end
+Runtime.emit("map.entered", { mapId = "ROCK_TUNNEL_1F", via = "warp" })
+T.eq(setDarkCalls, 1,
+  "recording FLASH before the atlas reload prevents a re-entrant activation")
+T.check(game.save.flashLit,
+  "the first cave entry records FLASH before any reload listener observes it")
+
 game, o = newWorld({ dark = false, knower = { species = "ABRA" } })
 Runtime.emit("map.entered", { mapId = "PALLET_TOWN" })
 T.eq(game.save.flashLit, nil, "a lit map does not re-flash")
